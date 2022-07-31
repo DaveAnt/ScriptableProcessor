@@ -20,6 +20,7 @@ public class ExamplePropertyDrawer : MonoBehaviour
 ```
 以上写法简单方便，接下来查看ScriptableProcessor<TestScriptableHelperBase>的监视面板样式，如下图：
 ![监视面板效果](./Document/Images/OnInspectorGUI.png)
+
 下拉框中选项是通过反射获取到所有继承TestScriptableHelperBase的父类，当创建新父类时，开发人员不需要改变任何东西，监视面板中就会多出创建的父类选型，选中父类时，红色框内属性就是此父类可序列化编辑的属性。
 
 # 3.定制父类监视面板

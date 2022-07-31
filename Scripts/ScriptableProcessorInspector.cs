@@ -134,6 +134,7 @@ namespace ScriptableProcessor
         private string m_TargetPrefabPath;
         private string[] m_ScriptableTypeNames;
         private float m_PropertyHeight = 0;
+        private bool m_OnCanChangeEnable = true;
         private int m_OnSelectedIndex = -1;
 
         private bool m_ShowFoldoutHeader = true;
@@ -231,7 +232,7 @@ namespace ScriptableProcessor
                         EditorGUI.PropertyField(customPosition, customScriptable);
                         if (customScriptable.objectReferenceValue == null)
                         {
-                            EditorGUI.HelpBox(errorPosition, string.Format("You must set Custom {0} Helper.", displayName), MessageType.Error);
+                            EditorGUI.HelpBox(errorPosition, string.Format("You must set Custom {0} .", displayName), MessageType.Error);
                         }
                     }
                 }
@@ -252,14 +253,16 @@ namespace ScriptableProcessor
 
             m_ScriptableAttrsReorderableList.onAddCallback = (ReorderableList list) =>
             {
+                m_OnCanChangeEnable = false;
                 OnAddReorderableList(m_ScriptableAttrsReorderableList.serializedProperty.arraySize);
                 ReorderableList.defaultBehaviours.DoAddButton(list);
             };
 
             m_ScriptableAttrsReorderableList.onRemoveCallback = (ReorderableList list) =>
             {
+                m_OnCanChangeEnable = false;
                 OnRemoveReorderableList(SelectedIndex);
-                ReorderableList.defaultBehaviours.DoRemoveButton(list); 
+                ReorderableList.defaultBehaviours.DoRemoveButton(list);
             };
 
             m_ScriptableAttrsReorderableList.onSelectCallback = (ReorderableList list) =>
@@ -269,6 +272,7 @@ namespace ScriptableProcessor
 
             m_ScriptableAttrsReorderableList.onChangedCallback = (ReorderableList list) =>
             {
+                if (!m_OnCanChangeEnable){ m_OnCanChangeEnable = true; return; }
                 OnSwapReorderableList(m_OnSelectedIndex, SelectedIndex);
             };
 
@@ -524,6 +528,7 @@ namespace ScriptableProcessor
 
         private void OnSwapReorderableList(int fromIndex, int toIndex)
         {
+            Debug.Log(fromIndex.ToString()+ toIndex.ToString());
             ScriptableProcessorData tmpScriptableProcessorData = m_ScriptableProcessorDatas[fromIndex];
             if (fromIndex > toIndex)
             {
