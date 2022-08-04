@@ -194,7 +194,7 @@ namespace ScriptableProcessor
                 m_ScriptableInfosReorderableList.DoLayoutList();
                 EditorGUILayout.EndFoldoutHeaderGroup();
 
-                if (isCustomEnable && SelectedIndex != -1)
+                if (!EditorApplication.isPlaying && isCustomEnable && SelectedIndex != -1)
                 {
                     ScriptableProcessorStatus state = OnSerializeScriptable();
                     switch (state)
@@ -246,7 +246,7 @@ namespace ScriptableProcessor
                 m_ScriptableInfosReorderableList.DoList(lstPos);
                 EditorGUI.EndFoldoutHeaderGroup();
 
-                if (isCustomEnable && SelectedIndex != -1)
+                if (!EditorApplication.isPlaying && isCustomEnable && SelectedIndex != -1)
                 {
                     ScriptableProcessorStatus state = OnSerializeScriptable();
                     Rect infoPos = new Rect(lstPos) { y = lstPos.y + lstPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight * 2 };

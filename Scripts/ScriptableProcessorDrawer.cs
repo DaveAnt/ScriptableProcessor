@@ -31,7 +31,6 @@ namespace ScriptableProcessor
                     scriptableProcessorInspector.Init(property.serializedObject);
                     scriptableProcessorInspector.Refresh();
                 }
-                EditorUtility.SetDirty(property.serializedObject.targetObject);
                 scriptableProcessorInspector.Draw(position);
             }
         }

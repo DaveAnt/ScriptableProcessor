@@ -133,7 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 825913399}
   m_Layer: 0
-  m_Name: ExampleHandle
+  m_Name: hover
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -147,7 +147,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 825913398}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.4029045, y: -1.6101913, z: 0.15017176}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -282,10 +282,40 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ScriptabletHelper:
     m_TargetObject: {fileID: 2767947480278271020}
-    m_ScriptableInfos: []
+    m_ScriptableInfos:
+    - m_ScriptableTypeIndex: 1
+      m_ScriptableTypeName: ScriptableProcessor.Example.TestScriptableHelper1
+      m_CustomScriptables:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+    - m_ScriptableTypeIndex: 2
+      m_ScriptableTypeName: ScriptableProcessor.Example.TestScriptableHelper2
+      m_CustomScriptables:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
   MonoHelper:
     m_TargetObject: {fileID: 2767947480278271020}
-    m_ScriptableInfos: []
+    m_ScriptableInfos:
+    - m_ScriptableTypeIndex: 1
+      m_ScriptableTypeName: ScriptableProcessor.Example.TestMonoHelper1
+      m_CustomScriptables:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+    - m_ScriptableTypeIndex: 2
+      m_ScriptableTypeName: ScriptableProcessor.Example.TestMonoHelper2
+      m_CustomScriptables:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
 --- !u!4 &2767947480278271020
 Transform:
   m_ObjectHideFlags: 0

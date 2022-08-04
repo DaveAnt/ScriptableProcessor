@@ -20,21 +20,24 @@ namespace ScriptableProcessor
 
         private T m_SelectedScriptable;
 
-        public T GetSelectedScriptable(Transform target)
+        public T this[Transform target]
         {
-            if (m_CustomScriptables != null)
+            get
             {
-                m_SelectedScriptable = m_CustomScriptables[m_ScriptableTypeIndex];
-                if (m_SelectedScriptable == null && m_ScriptableTypeIndex > 0)
+                if (m_CustomScriptables != null)
                 {
-                    string scriptableAssetName = TypeCreator.GetScriptableAssetName(target.name, m_ScriptableTypeName);
-                    m_SelectedScriptable = TypeCreator.Create<T>(m_ScriptableTypeName, scriptableAssetName, target);
+                    m_SelectedScriptable = m_CustomScriptables[m_ScriptableTypeIndex];
+                    if (m_SelectedScriptable == null && m_ScriptableTypeIndex > 0)
+                    {
+                        string scriptableAssetName = TypeCreator.GetScriptableAssetName(target.name, m_ScriptableTypeName);
+                        m_SelectedScriptable = TypeCreator.Create<T>(m_ScriptableTypeName, scriptableAssetName, target);
+                    }
+                    m_ScriptableTypeName = null;
+                    m_CustomScriptables = null;
                 }
-                m_CustomScriptables = null;
+
+                return m_SelectedScriptable;
             }
-
-            return m_SelectedScriptable;
-
         }
     }
 
@@ -55,7 +58,7 @@ namespace ScriptableProcessor
                     return null;
                 }
 
-                return m_ScriptableInfos[index].GetSelectedScriptable(m_TargetObject);
+                return m_ScriptableInfos[index][m_TargetObject];
             }
         }
 

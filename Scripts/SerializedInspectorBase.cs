@@ -63,7 +63,6 @@ namespace ScriptableProcessor
 
             obj.ApplyModifiedProperties();
             EditorGUI.EndChangeCheck();
-
             return height;
         }
 
