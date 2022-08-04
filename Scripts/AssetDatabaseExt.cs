@@ -60,37 +60,11 @@ namespace ScriptableProcessor
         public static void AddScriptObjectToAsset(Object scriptableObject, string assetPath)
         {
             AssetDatabase.AddObjectToAsset(scriptableObject, assetPath);
+            scriptableObject.hideFlags = HideFlags.HideInHierarchy;
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
 
-        public static void DelScriptObjectToAsset(ScriptableObject scriptableObject)
-        {
-            string assetPath = AssetDatabase.GetAssetPath(scriptableObject);
-            string fileExt = Path.GetExtension(assetPath);
-            if (!fileExt.Equals(".prefab"))
-            {
-                Debug.LogError(string.Format("{0} not in prefab!", scriptableObject.name));
-                return;
-            }
-            string guid; long localid;
-            AssetDatabase.TryGetGUIDAndLocalFileIdentifier(scriptableObject, out guid, out localid);
-            string[] assetLines = File.ReadAllLines(assetPath);
-            using (StreamWriter sw = new StreamWriter(assetPath, false))
-            {
-                bool isFilter = false;
-                foreach (var str in assetLines)
-                {
-                    if (isFilter && str[0] == '-')
-                        isFilter = false;
-                    if (str == localIdSign + localid)
-                        isFilter = true;
-                    if (!isFilter)
-                        sw.WriteLine(str);
-                }
-            }
-            AssetDatabase.Refresh();
-        }
 
         [MenuItem("Assets/[SP]Delete", false, 10)]
         static private void DeleteSP()
@@ -99,13 +73,15 @@ namespace ScriptableProcessor
             {
                 if (activeObject is ScriptableObject)
                 {
-                    DelScriptObjectToAsset((activeObject as ScriptableObject));
+                    UnityEngine.Object.DestroyImmediate(activeObject, true);
                 }
                 else
                 {
                     Debug.LogWarning(string.Format("{0} is't activeObject, can't delete", activeObject.name));
                 }
             }
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
         [MenuItem("Assets/[SP]Delete", true)]

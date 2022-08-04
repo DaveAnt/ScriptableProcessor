@@ -9,14 +9,16 @@ using UnityEngine;
 
 namespace ScriptableProcessor.Example
 {
-    public class TestMonotHelper3 : TestMonoHelperBase
+    public class TestMonoHelper2 : TestMonoHelperBase
     {
         [SerializeField]
-        private bool attr1;
+        private string[] attr1;
+        [SerializeField]
+        private int attr2;
 
         public override void PrintTest()
         {
-            Debug.Log("TestMonotHelper3");
+            Debug.Log("TestMonotHelper2");
         }
     }
 }

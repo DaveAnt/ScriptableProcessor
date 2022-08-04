@@ -123,122 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &327227807
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: MonoHelper.m_TargetObject
-      value: 
-      objectReference: {fileID: 1043098514}
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ScriptabletHelper.m_TargetObject
-      value: 
-      objectReference: {fileID: 1043098514}
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[0].m_CustomScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[0].m_OptionScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[1].m_CustomScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[1].m_OptionScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[0].m_ScriptableTypeName
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[1].m_ScriptableTypeName
-      value: ScriptableProcessor.Example.TestMonotHelper1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[0].m_CustomScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[0].m_OptionScriptable
-      value: 
-      objectReference: {fileID: 7912673815772005498, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-    - target: {fileID: 1911321122932687906, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[0].m_ScriptableTypeName
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.8754261
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.40821788
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0.23456968
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.10938163
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: -30
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327571, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_Name
-      value: ExampleInspectorGUI
-      objectReference: {fileID: 0}
-    - target: {fileID: 2697215834589327571, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
---- !u!4 &1043098514 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2697215834589327569, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-  m_PrefabInstance: {fileID: 327227807}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1152343841 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 89309647061567224, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-  m_PrefabInstance: {fileID: 2046317049}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1804075306
+--- !u!1 &825913398
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -246,23 +131,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1804075307}
+  - component: {fileID: 825913399}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: ExampleHandle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1804075307
+--- !u!4 &825913399
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1804075306}
+  m_GameObject: {fileID: 825913398}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1.4029045, y: -1.6101913, z: 0.15017176}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -278,7 +163,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 89309647061567224, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 89309647061567224, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
       propertyPath: m_LocalPosition.x
@@ -320,121 +205,69 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_TargetObject
-      value: 
-      objectReference: {fileID: 1152343841}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_TargetObject
-      value: 
-      objectReference: {fileID: 1152343841}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[0].m_CustomScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[0].m_OptionScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[1].m_CustomScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[1].m_OptionScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[2].m_OptionScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[3].m_OptionScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[4].m_OptionScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[0].m_ScriptableTypeName
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[1].m_ScriptableTypeName
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[2].m_ScriptableTypeName
-      value: ScriptableProcessor.Example.TestMonotHelper1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: MonoHelper.m_ScriptableAttrs.Array.data[3].m_ScriptableTypeName
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[0].m_CustomScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[0].m_OptionScriptable
-      value: 
-      objectReference: {fileID: 4688320910065103158, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[1].m_CustomScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[1].m_OptionScriptable
-      value: 
-      objectReference: {fileID: 6996707545846903485, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[2].m_CustomScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[2].m_OptionScriptable
-      value: 
-      objectReference: {fileID: -3245404965477477650, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[3].m_CustomScriptable
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[3].m_OptionScriptable
-      value: 
-      objectReference: {fileID: -3245404965477477650, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[0].m_ScriptableTypeName
-      value: ScriptableProcessor.Example.TestScriptabletHelper1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[1].m_ScriptableTypeName
-      value: ScriptableProcessor.Example.TestScriptabletHelper1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[2].m_ScriptableTypeName
-      value: ScriptableProcessor.Example.TestScriptabletHelper1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4475223351300408525, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableAttrs.Array.data[3].m_ScriptableTypeName
-      value: ScriptableProcessor.Example.TestScriptabletHelper1
-      objectReference: {fileID: 0}
     - target: {fileID: 5624298066990004881, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
       propertyPath: m_Name
       value: ExamplePropertyDrawer
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 815621898, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+--- !u!1001 &256623798292313694
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1887039213162315597, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2902291321280520982, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+      propertyPath: m_Name
+      value: ExampleInspectorGUI
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
 --- !u!114 &1837950770691403999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -449,19 +282,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ScriptabletHelper:
     m_TargetObject: {fileID: 2767947480278271020}
-    m_ScriptableAttrs:
-    - m_ScriptableTypeName: ScriptableProcessor.Example.TestScriptabletHelper1
-      m_CustomScriptable: {fileID: 3528855117573488106, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      m_OptionScriptable: {fileID: 3528855117573488106, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
+    m_ScriptableInfos: []
   MonoHelper:
     m_TargetObject: {fileID: 2767947480278271020}
-    m_ScriptableAttrs:
-    - m_ScriptableTypeName: ScriptableProcessor.Example.TestMonotHelper3
-      m_CustomScriptable: {fileID: 0}
-      m_OptionScriptable: {fileID: 0}
-    - m_ScriptableTypeName: ScriptableProcessor.Example.TestMonotHelper1
-      m_CustomScriptable: {fileID: 0}
-      m_OptionScriptable: {fileID: 0}
+    m_ScriptableInfos: []
 --- !u!4 &2767947480278271020
 Transform:
   m_ObjectHideFlags: 0

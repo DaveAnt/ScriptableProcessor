@@ -21,10 +21,10 @@ namespace ScriptableProcessor
                 return (T)CreateObject(scriptableType);
         }
 
-        public static string GetScriptableAssetName(string targetName, string scriptableTypeName, int index = 0)
+        public static string GetScriptableAssetName(string targetName, string scriptableTypeName)
         {
             string scriptableName = scriptableTypeName.Contains('.') ? Path.GetExtension(scriptableTypeName) : '.' + scriptableTypeName;
-            return string.Format("[SP]{0}{1}-{2}", targetName, scriptableName, index);
+            return string.Format("[SP]{0}{1}", targetName, scriptableName);
         }
 
         private static object CreateScriptable(System.Type scriptableType, params object[] userData)
@@ -58,15 +58,13 @@ namespace ScriptableProcessor
                 return null;
             }
 
-            component = new GameObject().AddComponent(scriptableType);
+            component = ((Transform)userData[1]).gameObject.AddComponent(scriptableType);
             if (component == null)
             {
                 Debug.LogError(string.Format("Can not create component."));
                 return null;
             }
 
-            component.gameObject.name = userData.Length > 0 ? userData[0].ToString() : scriptableType.Name;
-            component.transform.parent = userData.Length > 1 ? ((Transform)userData[1]) : null;
             return component;
         }
 

@@ -3,22 +3,18 @@ ScriptableProcessor
 Copyright © 2021-2022 Ding Qi Ming. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ScriptableProcessor.Example
 {
-    public class TestMonotHelper2 : TestMonoHelperBase
+    public class TestScriptableHelper4 : TestScriptableHelperBase
     {
         [SerializeField]
-        private string[] attr1;
-        [SerializeField]
-        private int attr2;
+        private float attr1;
 
         public override void PrintTest()
         {
-            Debug.Log("TestMonotHelper2");
+            Debug.Log("Test4ScriptabletHelper");
         }
     }
 }

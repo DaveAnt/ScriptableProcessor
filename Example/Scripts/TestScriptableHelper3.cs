@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace ScriptableProcessor.Example
 {
-    public class TestScriptabletHelper3 : TestScriptableHelperBase
+    public class TestScriptableHelper3 : TestScriptableHelperBase
     {
         [SerializeField]
         private GameObject[] attr1;
