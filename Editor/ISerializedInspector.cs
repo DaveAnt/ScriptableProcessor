@@ -6,7 +6,7 @@ Blog: https://daveant.gitee.io/
 using UnityEditor;
 using UnityEngine;
 
-namespace ScriptableProcessor
+namespace ScriptableProcessor.Editor
 {
     public interface ISerializedInspector
     {

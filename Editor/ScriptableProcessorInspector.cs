@@ -10,7 +10,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace ScriptableProcessor
+namespace ScriptableProcessor.Editor
 {
     public enum ScriptableProcessorStatus
     {
@@ -19,37 +19,35 @@ namespace ScriptableProcessor
         ShowScriptable,
     }
 
-    internal sealed class ScriptableProcessorInspector : SerializedInspectorBase
+    public sealed class ScriptableProcessorInspector : SerializedInspectorBase
     {
         private readonly int[] m_ScriptableElementHeight = { 25, 45, 70 };
 
         private readonly string m_Name;
         private readonly string m_HeaderName;
+        private readonly string m_TargetPath = "m_Target";
         private readonly string m_CustomOptionName = "<Custom>";
-        private readonly string m_TargetObjectPath = "m_TargetObject";
         private readonly string m_ScriptableInfosPath = "m_ScriptableInfos";
         private readonly string m_CustomScriptablesPath = "m_CustomScriptables";
         private readonly string m_ScriptableTypeNamePath = "m_ScriptableTypeName";
         private readonly string m_ScriptableTypeIndexPath = "m_ScriptableTypeIndex";
 
-        private UnityEngine.Object m_Target;
-        private UnityEngine.Transform m_TargetTransform;
+        private UnityEngine.Transform m_Target;
         private ISerializedInspector m_SerializedInspector;
         private SerializedObject m_SelectedSerializedObject;
 
-        private ReorderableList m_ScriptableInfosReorderableList;
+        private SerializedProperty m_ScriptableProperty;
         private SerializedProperty m_ScriptableInfosProperty;
-        private SerializedProperty m_TargetObjectProperty;
-
+        private ReorderableList m_ScriptableInfosReorderableList;
+        
         private Dictionary<UnityEngine.Object, SerializedObject> m_SerializedScriptableDicts;
         private Dictionary<string, ISerializedInspector> m_SerializedInspectorDicts;
 
         private Type m_ScriptableType;
         private string m_TargetPrefabPath;
         private string[] m_ScriptableTypeNames;
-        private float m_PropertyHeight = 0;
+        private float m_PropertyHeight;
 
-        private bool m_ShowFoldoutHeader = true;
         private bool m_IsScriptableObject;
         private bool m_IsMonoBehaviour;
 
@@ -110,15 +108,13 @@ namespace ScriptableProcessor
         public override void Init(SerializedObject serializedObject)
         {
             serializedObject.Update();
-            m_Target = serializedObject.targetObject;
-            m_TargetTransform = (m_Target as Component).transform;
+            m_Target = (serializedObject.targetObject as Component).transform;
             m_TargetPrefabPath = m_Target == null ? "" : PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(m_Target);
 
-            SerializedProperty targetProperty = serializedObject.FindProperty(m_Name);
-            m_ScriptableInfosProperty = targetProperty.FindPropertyRelative(m_ScriptableInfosPath);
-            m_TargetObjectProperty = targetProperty.FindPropertyRelative(m_TargetObjectPath);
+            m_ScriptableProperty = serializedObject.FindProperty(m_Name);
+            m_ScriptableInfosProperty = m_ScriptableProperty.FindPropertyRelative(m_ScriptableInfosPath);
             m_ScriptableInfosReorderableList = new ReorderableList(serializedObject, m_ScriptableInfosProperty, true, false, true, true);
-            m_TargetObjectProperty.objectReferenceValue = m_TargetTransform;
+            m_ScriptableProperty.FindPropertyRelative(m_TargetPath).objectReferenceValue = m_Target;
 
             m_ScriptableInfosReorderableList.drawElementCallback = (Rect position, int index, bool selected, bool focused) =>
             {
@@ -184,9 +180,9 @@ namespace ScriptableProcessor
         public override void Draw()
         {
             bool isCustomEnable = IsCustomEnable;
-            m_ShowFoldoutHeader = EditorGUILayout.BeginFoldoutHeaderGroup(m_ShowFoldoutHeader, m_HeaderName);
+            m_ScriptableProperty.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(m_ScriptableProperty.isExpanded, m_HeaderName);
 
-            if (m_ShowFoldoutHeader)
+            if (m_ScriptableProperty.isExpanded)
             {
                 if (isCustomEnable && GUILayout.Button("Clear NoReference"))
                     OnClearNoReference();
@@ -220,7 +216,7 @@ namespace ScriptableProcessor
                 }
             }
 
-            if(!m_ShowFoldoutHeader)
+            if(!m_ScriptableProperty.isExpanded)
             {
                 EditorGUILayout.EndFoldoutHeaderGroup();
             }
@@ -231,9 +227,9 @@ namespace ScriptableProcessor
             bool isCustomEnable = IsCustomEnable;
             position.height = EditorGUIUtility.singleLineHeight;
             m_PropertyHeight = (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing);
-
-            m_ShowFoldoutHeader = EditorGUI.BeginFoldoutHeaderGroup(position, m_ShowFoldoutHeader, m_HeaderName);
-            if (m_ShowFoldoutHeader) 
+            m_ScriptableProperty.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(position, m_ScriptableProperty.isExpanded, m_HeaderName);
+            
+            if (m_ScriptableProperty.isExpanded) 
             {
                 Rect buttonPos = new Rect(position) { y = position.y + position.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight };
                 m_PropertyHeight += (buttonPos.height + EditorGUIUtility.standardVerticalSpacing);
@@ -275,7 +271,7 @@ namespace ScriptableProcessor
                 }
             }
 
-            if (!m_ShowFoldoutHeader)
+            if (!m_ScriptableProperty.isExpanded)
             {
                 EditorGUI.EndFoldoutHeaderGroup();
             }
@@ -404,12 +400,13 @@ namespace ScriptableProcessor
             if (m_IsScriptableObject)
             {
                 assetObject = TypeCreator.Create<UnityEngine.Object>(scriptableTypeName, scriptableAssetName);
-                AssetDatabaseExt.AddScriptObjectToAsset(assetObject, m_TargetPrefabPath);
+                AssetDatabase.AddObjectToAsset(assetObject, m_TargetPrefabPath);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
             }
             else if (m_IsMonoBehaviour)
             {
-                assetObject = TypeCreator.Create<UnityEngine.Object>(scriptableTypeName, scriptableAssetName, m_TargetTransform);
-                assetObject.hideFlags = HideFlags.HideInHierarchy;
+                assetObject = TypeCreator.Create<UnityEngine.Object>(scriptableTypeName, scriptableAssetName, m_Target);
             }
 
             return assetObject;
@@ -431,6 +428,7 @@ namespace ScriptableProcessor
 
             scriptableTypeName.stringValue = null;
             scriptableTypeIndex.intValue = 0;
+            AssetDatabase.Refresh();
         }
 
         private void OnRemoveReorderableList(int index)
@@ -446,7 +444,6 @@ namespace ScriptableProcessor
                     UnityEngine.Object.DestroyImmediate(scriptableObject,true);
                 }
             }
-            AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
 

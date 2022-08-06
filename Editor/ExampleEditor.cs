@@ -5,11 +5,12 @@ Blog: https://daveant.gitee.io/
 */
 using UnityEditor;
 using ScriptableProcessor;
+using ScriptableProcessor.Example;
 
-namespace ScriptableProcessor.Example
+namespace ScriptableProcessor.Editor
 {
     [CustomEditor(typeof(ExampleInspectorGUI))]
-    public class ExampleEditor : Editor
+    public class ExampleEditor : UnityEditor.Editor
     {
         ScriptableProcessorInspector scriptableAttrsEditor = new ScriptableProcessorInspector("ScriptabletHelper", typeof(TestScriptableHelperBase));
         ScriptableProcessorInspector scriptableAttrsEditor2 = new ScriptableProcessorInspector("MonoHelper", typeof(TestMonoHelperBase));

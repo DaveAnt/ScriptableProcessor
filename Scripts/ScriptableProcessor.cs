@@ -45,7 +45,7 @@ namespace ScriptableProcessor
     public sealed class ScriptableProcessor<T> where T : class
     {
         [SerializeField]
-        private Transform m_TargetObject; 
+        private Transform m_Target;
         [SerializeField]
         private ScriptableInfo<T>[] m_ScriptableInfos;
 
@@ -54,11 +54,11 @@ namespace ScriptableProcessor
             get {
                 if (index >= m_ScriptableInfos.Length)
                 {
-                    Debug.LogError("ScriptableAttr Index out of range!");
+                    Debug.LogWarning("ScriptableInfo index out of range!");
                     return null;
                 }
 
-                return m_ScriptableInfos[index][m_TargetObject];
+                return m_ScriptableInfos[index][m_Target];
             }
         }
 

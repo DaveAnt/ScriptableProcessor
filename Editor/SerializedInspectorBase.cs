@@ -5,11 +5,12 @@ Blog: https://daveant.gitee.io/
 */
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
-namespace ScriptableProcessor
+namespace ScriptableProcessor.Editor
 {
     public abstract class SerializedInspectorBase : ISerializedInspector
     {
@@ -58,13 +59,15 @@ namespace ScriptableProcessor
                     height += (beginPos.height + EditorGUIUtility.standardVerticalSpacing);
                     EditorGUI.PropertyField(beginPos, property, true);
                 }
+                
                 expanded = false;
             }
-
             obj.ApplyModifiedProperties();
-            EditorGUI.EndChangeCheck();
+            if (EditorGUI.EndChangeCheck())
+                GUI.changed = true;
             return height;
         }
+
 
         protected bool DoLayoutDrawDefaultInspector(SerializedObject obj)
         {

@@ -16,8 +16,8 @@ namespace ScriptableProcessor.Example
 
         void Start()
         {
-            ScriptabletHelper[0].PrintTest();
-            MonoHelper[0].PrintTest();
+            ScriptabletHelper[0]?.PrintTest();
+            MonoHelper[0]?.PrintTest();
         }
     }
 }

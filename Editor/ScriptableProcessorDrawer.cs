@@ -4,19 +4,14 @@ Copyright © 2021-2022 Ding Qi Ming. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace ScriptableProcessor
+namespace ScriptableProcessor.Editor
 {
     [CustomPropertyDrawer(typeof(ScriptableProcessorAttribute))]
-    public sealed class ScriptableProcessorDrawer : PropertyDrawer
+    internal sealed class ScriptableProcessorDrawer : PropertyDrawer
     {
         private ScriptableProcessorInspector scriptableProcessorInspector;
 
@@ -32,6 +27,7 @@ namespace ScriptableProcessor
                     scriptableProcessorInspector.Refresh();
                 }
                 scriptableProcessorInspector.Draw(position);
+                GUI.changed = true;
             }
         }
 
@@ -39,7 +35,7 @@ namespace ScriptableProcessor
         {
             if (scriptableProcessorInspector != null)
                 return scriptableProcessorInspector.PropertyHeight;
-            return 0;
+            return base.GetPropertyHeight(property, label);
         }
 
     }

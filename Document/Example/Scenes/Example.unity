@@ -133,7 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 825913399}
   m_Layer: 0
-  m_Name: hover
+  m_Name: ExampleTest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -281,7 +281,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ScriptabletHelper:
-    m_TargetObject: {fileID: 2767947480278271020}
+    m_Target: {fileID: 2767947480278271020}
     m_ScriptableInfos:
     - m_ScriptableTypeIndex: 1
       m_ScriptableTypeName: ScriptableProcessor.Example.TestScriptableHelper1
@@ -300,7 +300,7 @@ MonoBehaviour:
       - {fileID: 0}
       - {fileID: 0}
   MonoHelper:
-    m_TargetObject: {fileID: 2767947480278271020}
+    m_Target: {fileID: 2767947480278271020}
     m_ScriptableInfos:
     - m_ScriptableTypeIndex: 1
       m_ScriptableTypeName: ScriptableProcessor.Example.TestMonoHelper1
