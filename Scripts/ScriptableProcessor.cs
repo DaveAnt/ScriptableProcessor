@@ -20,20 +20,28 @@ namespace ScriptableProcessor
 
         private T m_SelectedScriptable;
 
-        public T this[Transform target]
+        public T this[Transform transform]
         {
             get
             {
-                if (m_CustomScriptables != null)
+                if(m_SelectedScriptable == null)
                 {
-                    m_SelectedScriptable = m_CustomScriptables[m_ScriptableTypeIndex];
+                    if(m_CustomScriptables != null)
+                    {
+                        m_SelectedScriptable = m_CustomScriptables[m_ScriptableTypeIndex];
+                    }
+                    
                     if (m_SelectedScriptable == null && m_ScriptableTypeIndex > 0)
                     {
-                        string scriptableAssetName = TypeCreator.GetScriptableAssetName(target.name, m_ScriptableTypeName);
-                        m_SelectedScriptable = TypeCreator.Create<T>(m_ScriptableTypeName, scriptableAssetName, target);
+                        string scriptableAssetName = TypeCreator.GetScriptableAssetName(transform.name, m_ScriptableTypeName);
+                        m_SelectedScriptable = TypeCreator.Create<T>(m_ScriptableTypeName, scriptableAssetName, transform);
+                        Debug.LogWarning(string.Format("Try to create a {0}.", scriptableAssetName));
                     }
+
+#if !UNITY_EDITOR
                     m_ScriptableTypeName = null;
                     m_CustomScriptables = null;
+#endif
                 }
 
                 return m_SelectedScriptable;
@@ -45,7 +53,7 @@ namespace ScriptableProcessor
     public sealed class ScriptableProcessor<T> where T : class
     {
         [SerializeField]
-        private Transform m_Target;
+        private Transform m_Transform;
         [SerializeField]
         private ScriptableInfo<T>[] m_ScriptableInfos;
 
@@ -58,9 +66,8 @@ namespace ScriptableProcessor
                     return null;
                 }
 
-                return m_ScriptableInfos[index][m_Target];
+                return m_ScriptableInfos[index][m_Transform];
             }
         }
-
     }
 }

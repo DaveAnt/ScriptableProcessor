@@ -4,7 +4,6 @@ Copyright © 2021-2022 Ding Qi Ming. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditorInternal;
@@ -25,29 +24,29 @@ namespace ScriptableProcessor.Editor
 
         private readonly string m_Name;
         private readonly string m_HeaderName;
-        private readonly string m_TargetPath = "m_Target";
         private readonly string m_CustomOptionName = "<Custom>";
-        private readonly string m_ScriptableInfosPath = "m_ScriptableInfos";
-        private readonly string m_CustomScriptablesPath = "m_CustomScriptables";
-        private readonly string m_ScriptableTypeNamePath = "m_ScriptableTypeName";
-        private readonly string m_ScriptableTypeIndexPath = "m_ScriptableTypeIndex";
 
-        private UnityEngine.Transform m_Target;
+        private readonly string m_TransformDesc = "m_Transform";
+        private readonly string m_ScriptableInfosDesc = "m_ScriptableInfos";
+        private readonly string m_CustomScriptablesDesc = "m_CustomScriptables";
+        private readonly string m_ScriptableTypeNameDesc = "m_ScriptableTypeName";
+        private readonly string m_ScriptableTypeIndexDesc = "m_ScriptableTypeIndex";
+
+        private Transform m_Transform;
         private ISerializedInspector m_SerializedInspector;
         private SerializedObject m_SelectedSerializedObject;
 
         private SerializedProperty m_ScriptableProperty;
         private SerializedProperty m_ScriptableInfosProperty;
         private ReorderableList m_ScriptableInfosReorderableList;
-        
+
         private Dictionary<UnityEngine.Object, SerializedObject> m_SerializedScriptableDicts;
         private Dictionary<string, ISerializedInspector> m_SerializedInspectorDicts;
 
         private Type m_ScriptableType;
-        private string m_TargetPrefabPath;
+        private string m_TargetAssetPath;
         private string[] m_ScriptableTypeNames;
         private float m_PropertyHeight;
-
         private bool m_IsScriptableObject;
         private bool m_IsMonoBehaviour;
 
@@ -80,7 +79,7 @@ namespace ScriptableProcessor.Editor
                 if (!m_SerializedScriptableDicts.TryGetValue(scriptableObject, out serializedObject))
                 {
                     serializedObject = new SerializedObject(scriptableObject);
-                    m_SerializedScriptableDicts.Add(scriptableObject,serializedObject);
+                    m_SerializedScriptableDicts.Add(scriptableObject, serializedObject);
                 }
                 return serializedObject;
             }
@@ -108,13 +107,13 @@ namespace ScriptableProcessor.Editor
         public override void Init(SerializedObject serializedObject)
         {
             serializedObject.Update();
-            m_Target = (serializedObject.targetObject as Component).transform;
-            m_TargetPrefabPath = m_Target == null ? "" : PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(m_Target);
+            m_Transform = (serializedObject.targetObject as Component).transform;
+            m_TargetAssetPath = ScriptableProcessorUtility.GetAssetPath(m_Transform);
 
             m_ScriptableProperty = serializedObject.FindProperty(m_Name);
-            m_ScriptableInfosProperty = m_ScriptableProperty.FindPropertyRelative(m_ScriptableInfosPath);
+            m_ScriptableInfosProperty = m_ScriptableProperty.FindPropertyRelative(m_ScriptableInfosDesc);
             m_ScriptableInfosReorderableList = new ReorderableList(serializedObject, m_ScriptableInfosProperty, true, false, true, true);
-            m_ScriptableProperty.FindPropertyRelative(m_TargetPath).objectReferenceValue = m_Target;
+            m_ScriptableProperty.FindPropertyRelative(m_TransformDesc).objectReferenceValue = m_Transform;
 
             m_ScriptableInfosReorderableList.drawElementCallback = (Rect position, int index, bool selected, bool focused) =>
             {
@@ -123,14 +122,14 @@ namespace ScriptableProcessor.Editor
                 using (new EditorGUI.PropertyScope(position, null, scriptableInfo))
                 {
                     string displayName = FieldNameForDisplay(m_Name);
-                    var customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesPath);
-                    var scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexPath);
-                    var scriptableTypeName = scriptableInfo.FindPropertyRelative(m_ScriptableTypeNamePath);
+                    var customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesDesc);
+                    var scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexDesc);
+                    var scriptableTypeName = scriptableInfo.FindPropertyRelative(m_ScriptableTypeNameDesc);
 
                     var popupPosition = new Rect(position) { y = position.y + 5 };
                     var customPosition = new Rect(position) { y = popupPosition.y + EditorGUIUtility.singleLineHeight + 5 };
                     var errorPosition = new Rect(position) { y = customPosition.y + EditorGUIUtility.singleLineHeight + 5 };
-                    
+
 
                     int selectedIndex = EditorGUI.Popup(popupPosition, string.Format("{0}-{1}", displayName, index), scriptableTypeIndex.intValue, m_ScriptableTypeNames);
                     if (selectedIndex != scriptableTypeIndex.intValue)
@@ -153,9 +152,9 @@ namespace ScriptableProcessor.Editor
             m_ScriptableInfosReorderableList.elementHeightCallback = (int index) =>
             {
                 SerializedProperty scriptableInfo = m_ScriptableInfosProperty.GetArrayElementAtIndex(index);
-                SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexPath);
-                SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesPath);
-                if (scriptableTypeIndex.intValue > 0)
+                SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexDesc);
+                SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesDesc);
+                if (!IsCustomEnable || scriptableTypeIndex.intValue > 0)
                     return m_ScriptableElementHeight[0];
                 if (customScriptables.GetArrayElementAtIndex(0).objectReferenceValue != null)
                     return m_ScriptableElementHeight[1];
@@ -181,44 +180,37 @@ namespace ScriptableProcessor.Editor
         {
             bool isCustomEnable = IsCustomEnable;
             m_ScriptableProperty.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(m_ScriptableProperty.isExpanded, m_HeaderName);
-
             if (m_ScriptableProperty.isExpanded)
             {
                 if (isCustomEnable && GUILayout.Button("Clear NoReference"))
                     OnClearNoReference();
-
                 m_ScriptableInfosReorderableList.DoLayoutList();
-                EditorGUILayout.EndFoldoutHeaderGroup();
-
-                if (!EditorApplication.isPlaying && isCustomEnable && SelectedIndex != -1)
-                {
-                    ScriptableProcessorStatus state = OnSerializeScriptable();
-                    switch (state)
-                    {
-                        case ScriptableProcessorStatus.NoPrefab:
-                            EditorGUILayout.HelpBox("can't editor attributes，You must set the target as a prefab.", MessageType.Warning);
-                            break;
-                        case ScriptableProcessorStatus.Null:
-                            EditorGUILayout.HelpBox("customscriptable is null.", MessageType.Warning);
-                            break;
-                        case ScriptableProcessorStatus.ShowScriptable:
-                            if (m_SerializedInspector != null)
-                            {
-                                m_SerializedInspector.Init(m_SelectedSerializedObject);
-                                m_SerializedInspector.Draw();
-                            }
-                            else
-                            {
-                                DoLayoutDrawDefaultInspector(m_SelectedSerializedObject);
-                            }
-                            break;
-                    }
-                }
             }
+            EditorGUILayout.EndFoldoutHeaderGroup();
 
-            if(!m_ScriptableProperty.isExpanded)
+            if (m_ScriptableProperty.isExpanded && isCustomEnable && SelectedIndex != -1)
             {
-                EditorGUILayout.EndFoldoutHeaderGroup();
+                ScriptableProcessorStatus state = OnSerializeScriptable();
+                switch (state)
+                {
+                    case ScriptableProcessorStatus.NoPrefab:
+                        EditorGUILayout.HelpBox("can't editor attributes，You must set the target as a prefab.", MessageType.Warning);
+                        break;
+                    case ScriptableProcessorStatus.Null:
+                        EditorGUILayout.HelpBox("customscriptable is null.", MessageType.Warning);
+                        break;
+                    case ScriptableProcessorStatus.ShowScriptable:
+                        if (m_SerializedInspector != null)
+                        {
+                            m_SerializedInspector.Init(m_SelectedSerializedObject);
+                            m_SerializedInspector.Draw();
+                        }
+                        else
+                        {
+                            DoLayoutDrawDefaultInspector(m_SelectedSerializedObject);
+                        }
+                        break;
+                }
             }
         }
 
@@ -228,77 +220,73 @@ namespace ScriptableProcessor.Editor
             position.height = EditorGUIUtility.singleLineHeight;
             m_PropertyHeight = (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing);
             m_ScriptableProperty.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(position, m_ScriptableProperty.isExpanded, m_HeaderName);
-            
-            if (m_ScriptableProperty.isExpanded) 
+            Rect buttonPos, lstPos = Rect.zero;
+            if (m_ScriptableProperty.isExpanded)
             {
-                Rect buttonPos = new Rect(position) { y = position.y + position.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight };
+                buttonPos = new Rect(position) { y = position.y + position.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight };
                 m_PropertyHeight += (buttonPos.height + EditorGUIUtility.standardVerticalSpacing);
 
                 if (isCustomEnable && GUI.Button(buttonPos, "Clear NoReference"))
                     OnClearNoReference();
 
-                Rect lstPos = new Rect(buttonPos) { y = buttonPos.y + buttonPos.height + EditorGUIUtility.standardVerticalSpacing, height = m_ScriptableInfosReorderableList.GetHeight() };
+                lstPos = new Rect(buttonPos) { y = buttonPos.y + buttonPos.height + EditorGUIUtility.standardVerticalSpacing, height = m_ScriptableInfosReorderableList.GetHeight() };
                 m_PropertyHeight += (lstPos.height + EditorGUIUtility.standardVerticalSpacing);
                 m_ScriptableInfosReorderableList.DoList(lstPos);
-                EditorGUI.EndFoldoutHeaderGroup();
-
-                if (!EditorApplication.isPlaying && isCustomEnable && SelectedIndex != -1)
-                {
-                    ScriptableProcessorStatus state = OnSerializeScriptable();
-                    Rect infoPos = new Rect(lstPos) { y = lstPos.y + lstPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight * 2 };
-                    switch (state)
-                    {
-                        case ScriptableProcessorStatus.NoPrefab:
-                            EditorGUI.HelpBox(infoPos, "can't editor attributes，You must set the target as a prefab.", MessageType.Warning);
-                            m_PropertyHeight += (infoPos.height + EditorGUIUtility.standardVerticalSpacing);
-                            break;
-                        case ScriptableProcessorStatus.Null:
-                            EditorGUI.HelpBox(infoPos, "customscriptable is null.", MessageType.Warning);
-                            m_PropertyHeight += (infoPos.height + EditorGUIUtility.standardVerticalSpacing);
-                            break;
-                        case ScriptableProcessorStatus.ShowScriptable:
-                            if (m_SerializedInspector != null)
-                            {
-                                m_SerializedInspector.Init(m_SelectedSerializedObject);
-                                m_SerializedInspector.Draw(lstPos);
-                            }
-                            else
-                            {
-                                m_PropertyHeight += DoRectDrawDefaultInspector(lstPos, m_SelectedSerializedObject);
-                            }
-                            break;
-                    }
-                }
             }
+            EditorGUI.EndFoldoutHeaderGroup();
 
-            if (!m_ScriptableProperty.isExpanded)
+            if (m_ScriptableProperty.isExpanded && isCustomEnable && SelectedIndex != -1)
             {
-                EditorGUI.EndFoldoutHeaderGroup();
+                ScriptableProcessorStatus state = OnSerializeScriptable();
+                Rect infoPos = new Rect(lstPos) { y = lstPos.y + lstPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight * 2 };
+                switch (state)
+                {
+                    case ScriptableProcessorStatus.NoPrefab:
+                        EditorGUI.HelpBox(infoPos, "can't editor attributes，You must set the target as a prefab.", MessageType.Warning);
+                        m_PropertyHeight += (infoPos.height + EditorGUIUtility.standardVerticalSpacing);
+                        break;
+                    case ScriptableProcessorStatus.Null:
+                        EditorGUI.HelpBox(infoPos, "customscriptable is null.", MessageType.Warning);
+                        m_PropertyHeight += (infoPos.height + EditorGUIUtility.standardVerticalSpacing);
+                        break;
+                    case ScriptableProcessorStatus.ShowScriptable:
+                        if (m_SerializedInspector != null)
+                        {
+                            m_SerializedInspector.Init(m_SelectedSerializedObject);
+                            m_SerializedInspector.Draw(lstPos);
+                        }
+                        else
+                        {
+                            m_PropertyHeight += DoRectDrawDefaultInspector(lstPos, m_SelectedSerializedObject);
+                        }
+                        break;
+                }
             }
         }
 
         public override void Refresh()
         {
-            List<string> scriptableTypeNameList = new List<string> { m_CustomOptionName };
-            scriptableTypeNameList.AddRange(TypeExt.GetTypeFullNames(m_ScriptableType));
+            List<string> scriptableTypeNameList = new List<string>(TypeExt.GetTypeFullNames(m_ScriptableType));
+            if(IsCustomEnable) { scriptableTypeNameList.Insert(0, m_CustomOptionName); };
             m_ScriptableTypeNames = scriptableTypeNameList.ToArray();
 
             for (int i = 0; i < m_ScriptableInfosProperty.arraySize; ++i)
             {
                 SerializedProperty scriptableInfo = m_ScriptableInfosProperty.GetArrayElementAtIndex(i);
-                SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexPath);
-                SerializedProperty scriptableTypeName = scriptableInfo.FindPropertyRelative(m_ScriptableTypeNamePath);
-                SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesPath);
-                OnRefreshCustomScriptables(customScriptables);
+                SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexDesc);
+                SerializedProperty scriptableTypeName = scriptableInfo.FindPropertyRelative(m_ScriptableTypeNameDesc);
+                SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesDesc);
 
+                if (IsCustomEnable) 
+                {
+                    OnRefreshCustomScriptables(customScriptables);
+                }
+                
                 if (!string.IsNullOrEmpty(scriptableTypeName.stringValue))
                 {
                     scriptableTypeIndex.intValue = scriptableTypeNameList.IndexOf(scriptableTypeName.stringValue);
                     if (scriptableTypeIndex.intValue < 0)
-                    {
                         scriptableTypeName.stringValue = null;
-                        scriptableTypeIndex.intValue = 0;
-                    }
                 }
             }
             m_SerializedInspector?.Refresh();
@@ -332,11 +320,16 @@ namespace ScriptableProcessor.Editor
 
             for (int i = 0; i < m_ScriptableTypeNames.Length; ++i)
             {
-                UnityEngine.Object scriptableObject;
-                if (customScriptableDicts.TryGetValue(m_ScriptableTypeNames[i], out scriptableObject))
-                    customScriptables.GetArrayElementAtIndex(i).objectReferenceValue = scriptableObject;
+                UnityEngine.Object assetObject;
+                if (customScriptableDicts.TryGetValue(m_ScriptableTypeNames[i], out assetObject))
+                {
+                    customScriptables.GetArrayElementAtIndex(i).objectReferenceValue = assetObject;
+                    assetObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
+                }
                 else
+                {
                     customScriptables.GetArrayElementAtIndex(i).objectReferenceValue = null;
+                }
             }
         }
 
@@ -344,15 +337,15 @@ namespace ScriptableProcessor.Editor
         {
             Type scriptableType = null;
             SerializedProperty scriptableInfo = m_ScriptableInfosProperty.GetArrayElementAtIndex(SelectedIndex);
-            SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesPath);
-            SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexPath);
-            SerializedProperty scriptableTypeName = scriptableInfo.FindPropertyRelative(m_ScriptableTypeNamePath);
+            SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesDesc);
+            SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexDesc);
+            SerializedProperty scriptableTypeName = scriptableInfo.FindPropertyRelative(m_ScriptableTypeNameDesc);
             SerializedProperty scriptableTypeObject = customScriptables.GetArrayElementAtIndex(scriptableTypeIndex.intValue);
-            string scriptableAssetName = TypeCreator.GetScriptableAssetName(m_Target.name, scriptableTypeName.stringValue);
+            string scriptableAssetName = TypeCreator.GetScriptableAssetName(m_Transform.name, scriptableTypeName.stringValue);
 
             if (scriptableTypeIndex.intValue > 0)
             {
-                if (string.IsNullOrEmpty(m_TargetPrefabPath))
+                if (string.IsNullOrEmpty(m_TargetAssetPath))
                     return ScriptableProcessorStatus.NoPrefab;
 
                 scriptableType = AssemblyExt.GetType(scriptableTypeName.stringValue);
@@ -400,13 +393,17 @@ namespace ScriptableProcessor.Editor
             if (m_IsScriptableObject)
             {
                 assetObject = TypeCreator.Create<UnityEngine.Object>(scriptableTypeName, scriptableAssetName);
-                AssetDatabase.AddObjectToAsset(assetObject, m_TargetPrefabPath);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
+                AssetDatabase.AddObjectToAsset(assetObject, m_TargetAssetPath);
             }
             else if (m_IsMonoBehaviour)
             {
-                assetObject = TypeCreator.Create<UnityEngine.Object>(scriptableTypeName, scriptableAssetName, m_Target);
+                assetObject = TypeCreator.Create<UnityEngine.Object>(scriptableTypeName, scriptableAssetName, m_Transform);
+            }
+
+            if (assetObject != null)
+            {
+                assetObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
+                ScriptableProcessorUtility.AddAssetObjectToCheck(assetObject);
             }
 
             return assetObject;
@@ -414,37 +411,41 @@ namespace ScriptableProcessor.Editor
 
         private void OnAddReorderableList(int index)
         {
-            SerializedProperty scriptableInfo = m_ScriptableInfosProperty.GetArrayElementAtIndex(index);
-            SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexPath);
-            SerializedProperty scriptableTypeName = scriptableInfo.FindPropertyRelative(m_ScriptableTypeNamePath);
-            SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesPath);
-            for (int i = 0; i < m_ScriptableTypeNames.Length; ++i)
+            if (IsCustomEnable)
             {
-                if (index > 0)
-                    customScriptables.GetArrayElementAtIndex(i).objectReferenceValue = null;
-                else
-                    customScriptables.InsertArrayElementAtIndex(i);
-            }
+                SerializedProperty scriptableInfo = m_ScriptableInfosProperty.GetArrayElementAtIndex(index);
+                SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexDesc);
+                SerializedProperty scriptableTypeName = scriptableInfo.FindPropertyRelative(m_ScriptableTypeNameDesc);
+                SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesDesc);
+                for (int i = 0; i < m_ScriptableTypeNames.Length; ++i)
+                {
+                    if (index > 0)
+                        customScriptables.GetArrayElementAtIndex(i).objectReferenceValue = null;
+                    else
+                        customScriptables.InsertArrayElementAtIndex(i);
+                }
 
-            scriptableTypeName.stringValue = null;
-            scriptableTypeIndex.intValue = 0;
-            AssetDatabase.Refresh();
+                scriptableTypeName.stringValue = null;
+                scriptableTypeIndex.intValue = 0;
+            }
         }
 
         private void OnRemoveReorderableList(int index)
         {
-            SerializedProperty scriptableInfo = m_ScriptableInfosProperty.GetArrayElementAtIndex(index);
-            SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesPath);
-            for (int i = 0; i < customScriptables.arraySize; ++i)
+            if (IsCustomEnable)
             {
-                UnityEngine.Object scriptableObject = customScriptables.GetArrayElementAtIndex(i).objectReferenceValue;
-                if(scriptableObject != null)
+                SerializedProperty scriptableInfo = m_ScriptableInfosProperty.GetArrayElementAtIndex(index);
+                SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesDesc);
+                for (int i = 0; i < customScriptables.arraySize; ++i)
                 {
-                    customScriptables.GetArrayElementAtIndex(i).objectReferenceValue = null;
-                    UnityEngine.Object.DestroyImmediate(scriptableObject,true);
+                    UnityEngine.Object scriptableObject = customScriptables.GetArrayElementAtIndex(i).objectReferenceValue;
+                    if (scriptableObject != null)
+                    {
+                        customScriptables.GetArrayElementAtIndex(i).objectReferenceValue = null;
+                        UnityEngine.Object.DestroyImmediate(scriptableObject, true);
+                    }
                 }
             }
-            AssetDatabase.Refresh();
         }
 
         private void OnClearNoReference()
@@ -452,8 +453,8 @@ namespace ScriptableProcessor.Editor
             for (int i = 0; i < m_ScriptableInfosProperty.arraySize; ++i)
             {
                 SerializedProperty scriptableInfo = m_ScriptableInfosProperty.GetArrayElementAtIndex(i);
-                SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesPath);
-                SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexPath);
+                SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesDesc);
+                SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexDesc);
                 for (int j = 1; j < customScriptables.arraySize; ++j)
                 {
                     if (scriptableTypeIndex.intValue != j)

@@ -53,7 +53,7 @@ public class TestScriptabletHelper1Inspector : SerializedInspectorBase
 具体可参考ScriptableProcessorInspector。
 
 # 4.注意事项
-* 挂载目标不是prefab时，父类无法做到序列化和属性编辑(在运行时会初始化父类,这就导致只能采用默认父类属性)
-* 如果存在无法序列化的情况(挂载目标不是prefab或父类的基类不是Mono或ScriptObject)，此时将在代码调用时创建父类实例，不然程序启动时就会反序列化出父类实例。
+* 编辑监视面板时，不要一边在场景下编辑，一边又跳转到资源目录下编辑，可能会生成序列化的垃圾(此序列化数据可能不被插件内部使用，可手动删掉)。所以在场景下编辑时，及时保存再到资源目录下编辑即可。
+* 插件支持ScriptableObject，MonoBehaviour控制序列化的管理，不继承以上类时，插件将在启动时反射创建类实例。
 
-![非预制体](./Document/Images/NoPrefab.png)
+![编辑警告](./Document/Images/WarnEditing.png)

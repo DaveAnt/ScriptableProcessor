@@ -14,7 +14,7 @@ namespace ScriptableProcessor.Example
 
         public override void PrintTest()
         {
-            Debug.Log("Test4ScriptabletHelper");
+            Debug.Log("TestScriptabletHelper4");
         }
     }
 }

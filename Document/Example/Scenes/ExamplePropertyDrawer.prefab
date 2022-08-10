@@ -44,9 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d18a0327232a1b64b83112bbf6d36722, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ObjectHelper:
+    m_Transform: {fileID: 89309647061567224}
+    m_ScriptableInfos: []
   ScriptabletHelper:
-    m_Target: {fileID: 89309647061567224}
+    m_Transform: {fileID: 89309647061567224}
     m_ScriptableInfos: []
   MonoHelper:
-    m_Target: {fileID: 89309647061567224}
+    m_Transform: {fileID: 89309647061567224}
     m_ScriptableInfos: []

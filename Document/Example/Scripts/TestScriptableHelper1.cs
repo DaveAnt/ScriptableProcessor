@@ -3,10 +3,6 @@ ScriptableProcessor
 Copyright © 2021-2022 Ding Qi Ming. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace ScriptableProcessor.Example
@@ -20,7 +16,7 @@ namespace ScriptableProcessor.Example
 
         public override void PrintTest()
         {
-            Debug.Log("Test1ScriptabletHelper" + attr2);
+            Debug.Log("TestScriptabletHelper1");
         }
     }
 }

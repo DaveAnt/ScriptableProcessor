@@ -14,15 +14,63 @@ namespace ScriptableProcessor.Editor
     [InitializeOnLoad]
     public static class ScriptableProcessorUtility
     {
+        private static List<Object> m_OnCheckAssetObjectLst = new List<Object>();
         static ScriptableProcessorUtility()
         {
             EditorApplication.update += OnCheckScriptableProcessor;
         }
 
-        static void OnCheckScriptableProcessor()
+        public static void AddAssetObjectToCheck(UnityEngine.Object assetObject)
         {
-            //Debug.Log("Updating");
+            if (assetObject != null)
+            {
+                m_OnCheckAssetObjectLst.Add(assetObject);
+            }
         }
+
+        private static void OnCheckScriptableProcessor()
+        {
+            foreach(UnityEngine.Object assetObj in m_OnCheckAssetObjectLst)
+            {
+                if (assetObj != null)
+                {
+                    //Debug.Log(assetObj.hideFlags); 
+                    //Debug.Log(PrefabUtility.IsAddedComponentOverride(assetObj as Component));
+                    //MonoScript monoScript = MonoScript.FromMonoBehaviour(assetObj as MonoBehaviour);
+                    //monoScript.name = "ssssss";
+                    //Debug.Log(monoScript.name);
+                }
+                else
+                {
+                    m_OnCheckAssetObjectLst.Remove(assetObj);
+                    Debug.Log("---------------------"+ m_OnCheckAssetObjectLst.Count);
+                    break;
+                }
+            }
+        }
+
+        public static string GetAssetPath(Object assetObject)
+        {
+            if (PrefabUtility.IsPartOfPrefabAsset(assetObject))
+            {
+                return AssetDatabase.GetAssetPath(assetObject);
+            }     
+
+            if (PrefabUtility.IsPartOfPrefabInstance(assetObject))
+            {
+                var prefabAsset = PrefabUtility.GetCorrespondingObjectFromOriginalSource(assetObject);
+                return AssetDatabase.GetAssetPath(prefabAsset);
+            }
+
+            var prefabStage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
+            if (prefabStage != null)
+            {
+                return prefabStage.assetPath;
+            }
+
+            return AssetDatabase.GetAssetOrScenePath(assetObject);
+        }
+
 
         [MenuItem("Assets/Delete[SP]", false, 19)]
         static private void DeleteSP()
