@@ -31,7 +31,7 @@ namespace ScriptableProcessor
                         m_SelectedScriptable = m_CustomScriptables[m_ScriptableTypeIndex];
                     }
                     
-                    if (m_SelectedScriptable == null && m_ScriptableTypeIndex > 0)
+                    if (m_SelectedScriptable == null && !string.IsNullOrEmpty(m_ScriptableTypeName))
                     {
                         string scriptableAssetName = TypeCreator.GetScriptableAssetName(transform.name, m_ScriptableTypeName);
                         m_SelectedScriptable = TypeCreator.Create<T>(m_ScriptableTypeName, scriptableAssetName, transform);

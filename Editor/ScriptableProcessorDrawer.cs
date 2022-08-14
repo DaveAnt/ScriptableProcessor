@@ -24,7 +24,6 @@ namespace ScriptableProcessor.Editor
                     Type propertyType = fieldInfo.FieldType.GetProperties()[0].PropertyType;
                     scriptableProcessorInspector = new ScriptableProcessorInspector(fieldInfo.Name, propertyType);
                     scriptableProcessorInspector.Init(property.serializedObject);
-                    scriptableProcessorInspector.Refresh();
                 }
                 scriptableProcessorInspector.Draw(position);
                 GUI.changed = true;

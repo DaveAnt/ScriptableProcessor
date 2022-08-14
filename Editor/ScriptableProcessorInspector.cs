@@ -134,12 +134,13 @@ namespace ScriptableProcessor.Editor
                     int selectedIndex = EditorGUI.Popup(popupPosition, string.Format("{0}-{1}", displayName, index), scriptableTypeIndex.intValue, m_ScriptableTypeNames);
                     if (selectedIndex != scriptableTypeIndex.intValue)
                     {
-                        scriptableTypeName.stringValue = selectedIndex <= 0 ? null : m_ScriptableTypeNames[selectedIndex];
+                        scriptableTypeName.stringValue = m_ScriptableTypeNames[selectedIndex];
                         scriptableTypeIndex.intValue = selectedIndex;
                     }
 
                     if (selectedIndex <= 0 && IsCustomEnable)
                     {
+                        scriptableTypeName.stringValue = null;
                         EditorGUI.PropertyField(customPosition, customScriptables.GetArrayElementAtIndex(0));
                         if (customScriptables.GetArrayElementAtIndex(0).objectReferenceValue == null)
                         {
@@ -172,6 +173,7 @@ namespace ScriptableProcessor.Editor
                 OnRemoveReorderableList(SelectedIndex);
                 ReorderableList.defaultBehaviours.DoRemoveButton(list);
             };
+            Refresh();
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -266,8 +268,9 @@ namespace ScriptableProcessor.Editor
 
         public override void Refresh()
         {
+            bool isCustomEnable = IsCustomEnable;
             List<string> scriptableTypeNameList = new List<string>(TypeExt.GetTypeFullNames(m_ScriptableType));
-            if(IsCustomEnable) { scriptableTypeNameList.Insert(0, m_CustomOptionName); };
+            if(isCustomEnable) { scriptableTypeNameList.Insert(0, m_CustomOptionName); };
             m_ScriptableTypeNames = scriptableTypeNameList.ToArray();
 
             for (int i = 0; i < m_ScriptableInfosProperty.arraySize; ++i)
@@ -276,18 +279,13 @@ namespace ScriptableProcessor.Editor
                 SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexDesc);
                 SerializedProperty scriptableTypeName = scriptableInfo.FindPropertyRelative(m_ScriptableTypeNameDesc);
                 SerializedProperty customScriptables = scriptableInfo.FindPropertyRelative(m_CustomScriptablesDesc);
+                scriptableTypeName.stringValue = m_ScriptableTypeNames[scriptableTypeIndex.intValue];
 
-                if (IsCustomEnable) 
-                {
+                if (isCustomEnable) 
                     OnRefreshCustomScriptables(customScriptables);
-                }
-                
-                if (!string.IsNullOrEmpty(scriptableTypeName.stringValue))
-                {
-                    scriptableTypeIndex.intValue = scriptableTypeNameList.IndexOf(scriptableTypeName.stringValue);
-                    if (scriptableTypeIndex.intValue < 0)
-                        scriptableTypeName.stringValue = null;
-                }
+
+                if (isCustomEnable && scriptableTypeIndex.intValue == 0)
+                    scriptableTypeName.stringValue = null;
             }
             m_SerializedInspector?.Refresh();
         }
@@ -426,6 +424,14 @@ namespace ScriptableProcessor.Editor
                 }
 
                 scriptableTypeName.stringValue = null;
+                scriptableTypeIndex.intValue = 0;
+            }
+            else
+            {
+                SerializedProperty scriptableInfo = m_ScriptableInfosProperty.GetArrayElementAtIndex(index);
+                SerializedProperty scriptableTypeIndex = scriptableInfo.FindPropertyRelative(m_ScriptableTypeIndexDesc);
+                SerializedProperty scriptableTypeName = scriptableInfo.FindPropertyRelative(m_ScriptableTypeNameDesc);
+                scriptableTypeName.stringValue = m_ScriptableTypeNames[0];
                 scriptableTypeIndex.intValue = 0;
             }
         }

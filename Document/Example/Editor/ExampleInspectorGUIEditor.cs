@@ -28,11 +28,8 @@ namespace ScriptableProcessor.Example
         private void OnEnable()
         {
             objectHelperEditor.Init(serializedObject);
-            objectHelperEditor.Refresh();
             scriptabletHelperEditor.Init(serializedObject);
-            scriptabletHelperEditor.Refresh();
             monoHelperEditor.Init(serializedObject);
-            monoHelperEditor.Refresh();
         }
     }
 }
