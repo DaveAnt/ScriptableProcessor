@@ -1,54 +1,18 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2022 Ding Qi Ming. All rights reserved.
+Copyright © 2021-2022 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
 namespace ScriptableProcessor.Editor
 {
-
-    [InitializeOnLoad]
     public static class ScriptableProcessorUtility
     {
-        private static List<Object> m_OnCheckAssetObjectLst = new List<Object>();
-        static ScriptableProcessorUtility()
-        {
-            EditorApplication.update += OnCheckScriptableProcessor;
-        }
-
-        public static void AddAssetObjectToCheck(UnityEngine.Object assetObject)
-        {
-            if (assetObject != null)
-            {
-                m_OnCheckAssetObjectLst.Add(assetObject);
-            }
-        }
-
-        private static void OnCheckScriptableProcessor()
-        {
-            foreach(UnityEngine.Object assetObj in m_OnCheckAssetObjectLst)
-            {
-                if (assetObj != null)
-                {
-                    //Debug.Log(assetObj.hideFlags); 
-                    //Debug.Log(PrefabUtility.IsAddedComponentOverride(assetObj as Component));
-                    //MonoScript monoScript = MonoScript.FromMonoBehaviour(assetObj as MonoBehaviour);
-                    //monoScript.name = "ssssss";
-                    //Debug.Log(monoScript.name);
-                }
-                else
-                {
-                    m_OnCheckAssetObjectLst.Remove(assetObj);
-                    Debug.Log("---------------------"+ m_OnCheckAssetObjectLst.Count);
-                    break;
-                }
-            }
-        }
-
         public static string GetAssetPath(Object assetObject)
         {
             if (PrefabUtility.IsPartOfPrefabAsset(assetObject))
@@ -96,6 +60,41 @@ namespace ScriptableProcessor.Editor
             string assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
             string fileExt = Path.GetExtension(assetPath);
             return (Selection.activeObject is ScriptableObject) && fileExt.Equals(".prefab");
+        }
+
+        [MenuItem("Assets/Create/ScriptableObject", priority = 50)]
+        static void CreateScriptableObject()
+        {
+            foreach (var item in Selection.objects)
+                CreateAsset(item);
+            AssetDatabase.Refresh();
+        }
+
+        [MenuItem("Assets/Create/ScriptableObject", true)]
+        static bool IsScriptableObject()
+        {
+            System.Func<Object, bool> predicate = (obj) =>
+            {
+                if (obj is MonoScript)
+                {
+                    var type = (obj as MonoScript).GetClass();
+                    return (!type.IsAbstract && type.IsSubclassOf(typeof(ScriptableObject)));
+                }
+                return false;
+            };
+            return Selection.objects.Length > 0 && Selection.objects.Any(predicate);
+        }
+
+        static ScriptableObject CreateAsset(Object ms)
+        {
+            var path = AssetDatabase.GetAssetPath(ms);
+            path = path.Substring(0, path.LastIndexOf("/"));
+            var type = (ms as MonoScript).GetClass();
+            path = AssetDatabase.GenerateUniqueAssetPath($"{path}/ {type.Name}.asset");
+            var asset = ScriptableObject.CreateInstance(type);
+            AssetDatabase.CreateAsset(asset, path);
+            AssetDatabase.SaveAssets();
+            return asset;
         }
     }
 }

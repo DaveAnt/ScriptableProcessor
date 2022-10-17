@@ -1,11 +1,12 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2022 Ding Qi Ming. All rights reserved.
+Copyright © 2021-2022 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 
 namespace ScriptableProcessor
 {
@@ -14,46 +15,34 @@ namespace ScriptableProcessor
     /// </summary>
     public static class TypeExt
     {
-        private static readonly string[][] AssemblyNames =
+        public static string[] GetTypeFullNames(System.Type typeBase, AssemblyType assemblyType = AssemblyType.Runtime)
         {
-            new string[] {
-            "Assembly-CSharp",
-            },
-            new string[] {
-            "Assembly-CSharp",
-            "Assembly-CSharp-Editor",
-            }
-        };
-
-
-        public static string[] GetTypeFullNames(System.Type typeBase, int index = 0)
-        {
-            List<System.Type> typeList = GetTypes(typeBase, AssemblyNames[index]);
+            List<System.Type> typeList = GetTypes(typeBase, assemblyType);
             return typeList.ToArray((type) => { return type.FullName; });
         }
 
-        public static string[] GetTypeFullNames(string typeBaseName, int index = 0)
+        public static string[] GetTypeFullNames(string typeBaseName, AssemblyType assemblyType = AssemblyType.Runtime)
         {
-            List<System.Type> typeList = GetTypes(typeBaseName, AssemblyNames[index]);
+            List<System.Type> typeList = GetTypes(typeBaseName, assemblyType);
             return typeList.ToArray((type) => { return type.FullName; });
         }
 
-        public static string[] GetTypeNames(System.Type typeBase, string withoutExtensions = ".cs", int index = 0)
+        public static string[] GetTypeNames(System.Type typeBase, string withoutExtensions = ".cs", AssemblyType assemblyType = AssemblyType.Runtime)
         {
-            List<System.Type> typeList = GetTypes(typeBase, AssemblyNames[index]);
+            List<System.Type> typeList = GetTypes(typeBase, assemblyType);
             return typeList.ToArray((type) => { return type.Name + withoutExtensions; });
         }
 
-        public static string[] GetTypeNames(string typeBaseName, string withoutExtensions = ".cs", int index = 0)
+        public static string[] GetTypeNames(string typeBaseName, string withoutExtensions = ".cs", AssemblyType assemblyType = AssemblyType.Runtime)
         {
-            List<System.Type> typeList = GetTypes(typeBaseName, AssemblyNames[index]);
+            List<System.Type> typeList = GetTypes(typeBaseName, assemblyType);
             return typeList.ToArray((type) => { return type.Name + withoutExtensions; });
         }
 
-        public static List<System.Type> GetTypes(string typeBaseName, string[] assemblyNames)
+        public static List<System.Type> GetTypes(string typeBaseName, AssemblyType assemblyType = AssemblyType.Runtime)
         {
             List<System.Type> typeList = new List<System.Type>();
-            List<System.Type[]> typeArrayList = GetAllTypes(assemblyNames);
+            List<System.Type[]> typeArrayList = GetAllTypes(AssemblyExt.GetAssemblies(assemblyType));
             foreach (System.Type[] types in typeArrayList)
             {
                 foreach (System.Type type in types)
@@ -68,10 +57,10 @@ namespace ScriptableProcessor
             return typeList;
         }
 
-        public static List<System.Type> GetTypes(System.Type typeBase, string[] assemblyNames)
+        public static List<System.Type> GetTypes(System.Type typeBase, AssemblyType assemblyType = AssemblyType.Runtime)
         {
             List<System.Type> typeList = new List<System.Type>();
-            List<System.Type[]> typeArrayList = GetAllTypes(assemblyNames);
+            List<System.Type[]> typeArrayList = GetAllTypes(AssemblyExt.GetAssemblies(assemblyType));
             foreach (System.Type[] types in typeArrayList)
             {
                 foreach (System.Type type in types)
@@ -86,21 +75,11 @@ namespace ScriptableProcessor
             return typeList;
         }
 
-        public static List<System.Type[]> GetAllTypes(string[] assemblyNames)
+        public static List<System.Type[]> GetAllTypes(Assembly[] assemblies)
         {
             List<System.Type[]> typeArrayList = new List<System.Type[]>();
-            foreach (string assemblyName in assemblyNames)
+            foreach (Assembly assembly in assemblies)
             {
-                Assembly assembly = null;
-                try
-                {
-                    assembly = Assembly.Load(assemblyName);
-                }
-                catch
-                {
-                    continue;
-                }
-
                 if (assembly == null)
                 {
                     continue;

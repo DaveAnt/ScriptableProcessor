@@ -1,6 +1,6 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2022 Ding Qi Ming. All rights reserved.
+Copyright © 2021-2022 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace ScriptableProcessor.Editor
 {
@@ -33,6 +34,7 @@ namespace ScriptableProcessor.Editor
         private readonly string m_ScriptableTypeIndexDesc = "m_ScriptableTypeIndex";
 
         private Transform m_Transform;
+        private Component m_Component;
         private ISerializedInspector m_SerializedInspector;
         private SerializedObject m_SelectedSerializedObject;
 
@@ -107,7 +109,8 @@ namespace ScriptableProcessor.Editor
         public override void Init(SerializedObject serializedObject)
         {
             serializedObject.Update();
-            m_Transform = (serializedObject.targetObject as Component).transform;
+            m_Component = (serializedObject.targetObject as Component);
+            m_Transform = m_Component.transform;
             m_TargetAssetPath = ScriptableProcessorUtility.GetAssetPath(m_Transform);
 
             m_ScriptableProperty = serializedObject.FindProperty(m_Name);
@@ -184,7 +187,7 @@ namespace ScriptableProcessor.Editor
             m_ScriptableProperty.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(m_ScriptableProperty.isExpanded, m_HeaderName);
             if (m_ScriptableProperty.isExpanded)
             {
-                if (isCustomEnable && GUILayout.Button("Clear NoReference"))
+                if (isCustomEnable && GUILayout.Button("Clear NoReferences"))
                     OnClearNoReference();
                 m_ScriptableInfosReorderableList.DoLayoutList();
             }
@@ -228,7 +231,7 @@ namespace ScriptableProcessor.Editor
                 buttonPos = new Rect(position) { y = position.y + position.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight };
                 m_PropertyHeight += (buttonPos.height + EditorGUIUtility.standardVerticalSpacing);
 
-                if (isCustomEnable && GUI.Button(buttonPos, "Clear NoReference"))
+                if (isCustomEnable && GUI.Button(buttonPos, "Clear NoReferences"))
                     OnClearNoReference();
 
                 lstPos = new Rect(buttonPos) { y = buttonPos.y + buttonPos.height + EditorGUIUtility.standardVerticalSpacing, height = m_ScriptableInfosReorderableList.GetHeight() };
@@ -392,7 +395,7 @@ namespace ScriptableProcessor.Editor
             {
                 assetObject = TypeCreator.Create<UnityEngine.Object>(scriptableTypeName, scriptableAssetName);
                 AssetDatabase.AddObjectToAsset(assetObject, m_TargetAssetPath);
-            }
+            } 
             else if (m_IsMonoBehaviour)
             {
                 assetObject = TypeCreator.Create<UnityEngine.Object>(scriptableTypeName, scriptableAssetName, m_Transform);
@@ -401,7 +404,6 @@ namespace ScriptableProcessor.Editor
             if (assetObject != null)
             {
                 assetObject.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
-                ScriptableProcessorUtility.AddAssetObjectToCheck(assetObject);
             }
 
             return assetObject;

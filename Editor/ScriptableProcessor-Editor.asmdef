@@ -1,5 +1,5 @@
 {
-    "name": "ScriptableProcessor.Editor",
+    "name": "ScriptableProcessor-Editor",
     "rootNamespace": "",
     "references": [
         "GUID:cb678be3a5788e747a1021919c1c93eb"
