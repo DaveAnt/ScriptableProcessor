@@ -30,6 +30,8 @@ namespace ScriptableProcessor.Editor
 
         public abstract void Refresh();
 
+        public abstract void Dispose();
+
         protected string FieldNameForDisplay(string fieldName)
         {
             if (string.IsNullOrEmpty(fieldName))
@@ -53,6 +55,7 @@ namespace ScriptableProcessor.Editor
 
             while (property.NextVisible(expanded))
             {
+                Debug.LogError(property.name);
                 using (new EditorGUI.DisabledScope("m_Script" == property.propertyPath))
                 {
                     beginPos = new Rect(beginPos) { y = beginPos.y + beginPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUI.GetPropertyHeight(property) };

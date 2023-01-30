@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace ScriptableProcessor
 {
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     [Conditional("UNITY_EDITOR")]
     public sealed class ScriptableProcessorAttribute : PropertyAttribute
     {

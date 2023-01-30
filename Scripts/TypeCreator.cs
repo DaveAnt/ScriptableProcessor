@@ -3,81 +3,127 @@ ScriptableProcessor
 Copyright © 2021-2022 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
-using System.IO;
+using System;
 using UnityEngine;
 
 namespace ScriptableProcessor
 {
+    public enum ScriptableType : byte
+    {
+        None,
+        MonoBehaviour,
+        ScriptableObject,
+    }
+
+    public struct CreateParams
+    {
+        public readonly string serializeData;
+        public readonly string scriptableName;
+        public readonly GameObject objectTarget;
+        public readonly HideFlags hideFlags;
+
+        public CreateParams(GameObject objectTarget, string serializeData = null, HideFlags hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector, string scriptableName = null)
+        {
+            this.serializeData = serializeData;
+            this.scriptableName = scriptableName;
+            this.objectTarget = objectTarget;
+            this.hideFlags = hideFlags;
+        }
+    }
+
     public static class TypeCreator
     {
-        public static T Create<T>(string scriptableTypeName = null,params object[] userData) where T : class
+        public static T Create<T>(string scriptableTypeName, CreateParams createParams, Action<T, ScriptableType> procResultFunc = null) where T : class
         {
+            T instance = null;
             System.Type scriptableType = scriptableTypeName != null ? AssemblyExt.GetType(scriptableTypeName) : typeof(T);
             if (scriptableType.IsSubclassOf(typeof(ScriptableObject)))
-                return (T)CreateScriptable(scriptableType, userData);
+            {
+                instance = (T)CreateScriptable(scriptableType, createParams);
+                procResultFunc?.Invoke(instance, ScriptableType.ScriptableObject);
+            }
             else if (scriptableType.IsSubclassOf(typeof(MonoBehaviour)))
-                return (T)CreateComponent(scriptableType, userData);
+            {
+                instance = (T)CreateComponent(scriptableType, createParams);
+                procResultFunc?.Invoke(instance, ScriptableType.MonoBehaviour);
+            }
             else
-                return (T)CreateObject(scriptableType);
+            {
+                instance = (T)CreateObject(scriptableType, createParams);
+                procResultFunc?.Invoke(instance, ScriptableType.None);
+            }
+
+            return instance;
         }
 
-        public static string GetScriptableAssetName(string targetName, string scriptableTypeName)
+        private static object CreateScriptable(System.Type scriptableType, CreateParams createParams)
         {
-            string scriptableName = scriptableTypeName.Contains('.') ? Path.GetExtension(scriptableTypeName) : '.' + scriptableTypeName;
-            return string.Format("[SP]{0}{1}", targetName, scriptableName);
-        }
-
-        private static object CreateScriptable(System.Type scriptableType, params object[] userData)
-        {
-            ScriptableObject scriptable = null;
-
             if (scriptableType == null)
             {
                 Debug.LogWarning(string.Format("Can not find scriptable type '{0}'.", scriptableType.FullName));
                 return null;
             }
 
-            scriptable = ScriptableObject.CreateInstance(scriptableType);
+            ScriptableObject scriptable = ScriptableObject.CreateInstance(scriptableType);
             if (scriptable == null)
             {
                 Debug.LogError(string.Format("Can not create scriptable."));
                 return null;
             }
-            
-            scriptable.name = userData.Length > 0 ? userData[0].ToString() : scriptableType.Name;
+
+            if (!string.IsNullOrEmpty(createParams.serializeData))
+            {
+                JsonUtility.FromJsonOverwrite(createParams.serializeData, scriptable);
+            }
+
+            scriptable.name = createParams.scriptableName ?? scriptableType.Name;
+            scriptable.hideFlags = createParams.hideFlags;
             return scriptable;
         }
 
-        private static object CreateComponent(System.Type scriptableType, params object[] userData)
+        private static object CreateComponent(System.Type scriptableType, CreateParams createParams)
         {
-            Component component = null;
-
             if (scriptableType == null)
             {
                 Debug.LogWarning(string.Format("Can not find component type '{0}'.", scriptableType));
                 return null;
             }
 
-            component = ((Transform)userData[1]).gameObject.AddComponent(scriptableType);
+            Component component = createParams.objectTarget.AddComponent(scriptableType);
+
             if (component == null)
             {
                 Debug.LogError(string.Format("Can not create component."));
                 return null;
             }
 
+            if (!string.IsNullOrEmpty(createParams.serializeData))
+            {
+                JsonUtility.FromJsonOverwrite(createParams.serializeData, component);
+            }
+
+            component.hideFlags = createParams.hideFlags;
             return component;
         }
 
-        private static object CreateObject(System.Type scriptableType, params object[] userData)
+        private static object CreateObject(System.Type scriptableType, CreateParams createParams)
         {
-            object obj = null;
             if (scriptableType == null)
             {
                 Debug.LogWarning(string.Format("Can not find object type '{0}'.", scriptableType.FullName));
                 return null;
             }
 
-            obj = System.Activator.CreateInstance(scriptableType);
+            object obj;
+            if (!string.IsNullOrEmpty(createParams.serializeData))
+            {
+                obj = JsonUtility.FromJson(createParams.serializeData, scriptableType);
+            }
+            else
+            {
+                obj = System.Activator.CreateInstance(scriptableType);
+            }
+            
             if (obj == null)
             {
                 Debug.LogWarning("Can not create object.");

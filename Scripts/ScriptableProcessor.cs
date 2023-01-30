@@ -12,40 +12,54 @@ namespace ScriptableProcessor
     public class ScriptableInfo<T> where T : class
     {
         [SerializeField]
-        private int m_ScriptableTypeIndex;
+        private T m_CustomScriptable;
         [SerializeField]
-        private string m_ScriptableTypeName;
+        private sbyte m_ScriptableTypeIndex;
         [SerializeField]
-        private T[] m_CustomScriptables;
+        private string[] m_OptionSerializeDatas;
+        [SerializeField]
+        private T[] m_OptionScriptables;
 
-        private T m_SelectedScriptable;
+        private Action<GameObject, string[]> m_OnInitProc;
 
-        public T this[Transform transform]
+        public Action<GameObject, string[]> OnInitProc
         {
             get
             {
-                if(m_SelectedScriptable == null)
-                {
-                    if(m_CustomScriptables != null)
-                    {
-                        m_SelectedScriptable = m_CustomScriptables[m_ScriptableTypeIndex];
-                    }
-                    
-                    if (m_SelectedScriptable == null && !string.IsNullOrEmpty(m_ScriptableTypeName))
-                    {
-                        string scriptableAssetName = TypeCreator.GetScriptableAssetName(transform.name, m_ScriptableTypeName);
-                        m_SelectedScriptable = TypeCreator.Create<T>(m_ScriptableTypeName, scriptableAssetName, transform);
-                        Debug.LogWarning(string.Format("Try to create a {0}.", scriptableAssetName));
-                    }
+                return m_OnInitProc;
+            }
+        }
 
-#if !UNITY_EDITOR
-                    m_ScriptableTypeName = null;
-                    m_CustomScriptables = null;
-#endif
+        public T ScriptableTarget
+        {
+            get
+            {
+                if (m_ScriptableTypeIndex == -1)
+                    return m_CustomScriptable;
+                return m_OptionScriptables[m_ScriptableTypeIndex];
+            }
+        }
+
+        public ScriptableInfo()
+        {
+            m_OnInitProc = (target, optionTypeNames) => {
+                m_OnInitProc = null;
+                if (m_ScriptableTypeIndex == -1)
+                    return;
+
+                if (m_OptionScriptables == null)
+                {
+                    m_OptionScriptables = new T[optionTypeNames.Length];
                 }
 
-                return m_SelectedScriptable;
-            }
+                if (m_OptionScriptables[m_ScriptableTypeIndex] == null)
+                {
+                    string optionSerializeData = string.Empty;
+                    if (m_ScriptableTypeIndex < m_OptionSerializeDatas.Length)
+                        optionSerializeData = m_OptionSerializeDatas[m_ScriptableTypeIndex];
+                    m_OptionScriptables[m_ScriptableTypeIndex] = TypeCreator.Create<T>(optionTypeNames[m_ScriptableTypeIndex], new CreateParams(target, optionSerializeData));
+                }
+            };
         }
     }
 
@@ -53,7 +67,9 @@ namespace ScriptableProcessor
     public sealed class ScriptableProcessor<T> where T : class
     {
         [SerializeField]
-        private Transform m_Transform;
+        private GameObject m_Target;
+        [SerializeField]
+        private string[] m_OptionTypeNames;
         [SerializeField]
         private ScriptableInfo<T>[] m_ScriptableInfos;
 
@@ -66,7 +82,8 @@ namespace ScriptableProcessor
                     return null;
                 }
 
-                return m_ScriptableInfos[index][m_Transform];
+                m_ScriptableInfos[index]?.OnInitProc(m_Target, m_OptionTypeNames);
+                return m_ScriptableInfos[index].ScriptableTarget;
             }
         }
     }

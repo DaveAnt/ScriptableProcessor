@@ -23,9 +23,11 @@ namespace ScriptableProcessor
             new string[] {
             "Assembly-CSharp",
             },
+#if UNITY_EDITOR
             new string[] {
             "Assembly-CSharp-Editor",
-            }
+            },
+#endif
         };
 
         private static Assembly[] s_AllAssemblies = null;
@@ -34,8 +36,12 @@ namespace ScriptableProcessor
 
         static AssemblyExt()
         {
+#if UNITY_EDITOR
             s_Assemblies = new Assembly[2][];
-            for(int index=0; index < s_AssemblyNames.Length; ++index)
+#else
+            s_Assemblies = new Assembly[1][];
+#endif
+            for (int index=0; index < s_AssemblyNames.Length; ++index)
             {
                 var assemblyNames = s_AssemblyNames[index];
                 s_Assemblies[index] = new Assembly[assemblyNames.Length];

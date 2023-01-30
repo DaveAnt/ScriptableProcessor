@@ -22,7 +22,6 @@ namespace ScriptableProcessor.Example
             ObjectHelper[0]?.PrintTest();
             ScriptabletHelper[0]?.PrintTest();
             MonoHelper[0]?.PrintTest();
-            MonoHelper[1]?.PrintTest();
         }
 
     }

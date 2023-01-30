@@ -19,5 +19,7 @@ namespace ScriptableProcessor.Editor
         public abstract void Draw(Rect beginPos);
 
         public abstract void Refresh();
+
+        public abstract void Dispose();
     }
 }

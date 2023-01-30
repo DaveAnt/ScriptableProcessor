@@ -25,6 +25,13 @@ namespace ScriptableProcessor.Example
             serializedObject.ApplyModifiedProperties();
         }
 
+        public void OnDestroy()
+        {
+            objectHelperEditor.Dispose();
+            scriptabletHelperEditor.Dispose();
+            monoHelperEditor.Dispose();
+        }
+
         private void OnEnable()
         {
             objectHelperEditor.Init(serializedObject);

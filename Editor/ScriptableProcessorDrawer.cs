@@ -5,7 +5,6 @@ Blog: https://daveant.gitee.io/
 */
 using System;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
 namespace ScriptableProcessor.Editor

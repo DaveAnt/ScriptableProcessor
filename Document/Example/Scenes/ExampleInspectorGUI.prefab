@@ -45,11 +45,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ScriptabletHelper:
-    m_Transform: {fileID: 318069484542236815}
+    m_Target: {fileID: 45624985548693963}
+    m_OptionTypeNames:
+    - ScriptableProcessor.Example.TestScriptableHelper1
+    - ScriptableProcessor.Example.TestScriptableHelper2
+    - ScriptableProcessor.Example.TestScriptableHelper3
+    - ScriptableProcessor.Example.TestScriptableHelper4
     m_ScriptableInfos: []
   MonoHelper:
-    m_Transform: {fileID: 318069484542236815}
+    m_Target: {fileID: 45624985548693963}
+    m_OptionTypeNames:
+    - ScriptableProcessor.Example.TestMonoHelper1
+    - ScriptableProcessor.Example.TestMonoHelper2
+    - ScriptableProcessor.Example.TestMonoHelper3
     m_ScriptableInfos: []
   ObjectHelper:
-    m_Transform: {fileID: 318069484542236815}
+    m_Target: {fileID: 45624985548693963}
+    m_OptionTypeNames:
+    - ScriptableProcessor.Example.TestObjectHelper1
+    - ScriptableProcessor.Example.TestObjectHelper2
     m_ScriptableInfos: []
