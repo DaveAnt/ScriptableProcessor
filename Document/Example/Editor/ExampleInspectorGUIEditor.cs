@@ -15,7 +15,6 @@ namespace ScriptableProcessor.Example
         ScriptableProcessorInspector scriptabletHelperEditor = new ScriptableProcessorInspector("ScriptabletHelper", typeof(TestScriptableHelperBase));
         ScriptableProcessorInspector monoHelperEditor = new ScriptableProcessorInspector("MonoHelper", typeof(TestMonoHelperBase));
         
-
         public override void OnInspectorGUI()
         {
             serializedObject.Update();

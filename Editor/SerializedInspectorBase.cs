@@ -3,9 +3,6 @@ ScriptableProcessor
 Copyright © 2021-2022 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
@@ -55,7 +52,6 @@ namespace ScriptableProcessor.Editor
 
             while (property.NextVisible(expanded))
             {
-                Debug.LogError(property.name);
                 using (new EditorGUI.DisabledScope("m_Script" == property.propertyPath))
                 {
                     beginPos = new Rect(beginPos) { y = beginPos.y + beginPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUI.GetPropertyHeight(property) };

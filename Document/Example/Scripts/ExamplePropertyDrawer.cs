@@ -15,7 +15,7 @@ namespace ScriptableProcessor.Example
         public ScriptableProcessor<TestScriptableHelperBase> ScriptabletHelper = new ScriptableProcessor<TestScriptableHelperBase>();
         [ScriptableProcessor]
         public ScriptableProcessor<TestMonoHelperBase> MonoHelper = new ScriptableProcessor<TestMonoHelperBase>();
-
+        
         void Start()
         {
             ObjectHelper[0]?.PrintTest();

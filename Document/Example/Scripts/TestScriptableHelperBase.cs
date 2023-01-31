@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace ScriptableProcessor.Example
 {
-
     public abstract class TestScriptableHelperBase : ScriptableObject
     {
         public abstract void PrintTest();

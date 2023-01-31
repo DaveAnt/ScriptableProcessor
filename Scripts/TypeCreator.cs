@@ -29,14 +29,38 @@ namespace ScriptableProcessor
             this.objectTarget = objectTarget;
             this.hideFlags = hideFlags;
         }
+
+        public CreateParams(string serializeData)
+        {
+            this.serializeData = serializeData;
+            this.hideFlags = HideFlags.None;
+            this.scriptableName = null;
+            this.objectTarget = null;
+        }
+
+        public CreateParams(string serializeData, GameObject objectTarget, HideFlags hideFlags = HideFlags.None)
+        {
+            this.serializeData = serializeData;
+            this.objectTarget = objectTarget;
+            this.hideFlags = hideFlags;
+            this.scriptableName = null;
+        }
+
+        public CreateParams(string serializeData, string scriptableName = null, HideFlags hideFlags = HideFlags.None)
+        {
+            this.scriptableName = scriptableName;
+            this.serializeData = serializeData;
+            this.hideFlags = hideFlags;
+            this.objectTarget = null;
+        }
     }
 
     public static class TypeCreator
     {
         public static T Create<T>(string scriptableTypeName, CreateParams createParams, Action<T, ScriptableType> procResultFunc = null) where T : class
         {
-            T instance = null;
-            System.Type scriptableType = scriptableTypeName != null ? AssemblyExt.GetType(scriptableTypeName) : typeof(T);
+            T instance;
+            Type scriptableType = scriptableTypeName != null ? AssemblyExt.GetType(scriptableTypeName) : typeof(T);
             if (scriptableType.IsSubclassOf(typeof(ScriptableObject)))
             {
                 instance = (T)CreateScriptable(scriptableType, createParams);

@@ -9,7 +9,6 @@ using UnityEngine;
 namespace ScriptableProcessor.Example
 {
     [Serializable]
-    [ScriptableProcessor]
     public class TestObjectHelper1 : TestObjectHelperBase
     {
         [SerializeField]

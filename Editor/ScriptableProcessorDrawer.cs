@@ -35,6 +35,5 @@ namespace ScriptableProcessor.Editor
                 return scriptableProcessorInspector.PropertyHeight;
             return base.GetPropertyHeight(property, label);
         }
-
     }
 }

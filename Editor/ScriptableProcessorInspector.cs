@@ -5,7 +5,6 @@ Blog: https://daveant.gitee.io/
 */
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -187,7 +186,7 @@ namespace ScriptableProcessor.Editor
                     }
                     if (EditorGUI.EndChangeCheck())
                     {
-                        SaveScriptableSerialize();
+                        PersistScriptableSerialize();
                     }
                 }
                 else
@@ -243,7 +242,7 @@ namespace ScriptableProcessor.Editor
                     }
                     if (EditorGUI.EndChangeCheck())
                     {
-                        SaveScriptableSerialize();
+                        PersistScriptableSerialize();
                     }
                 }
                 else
@@ -347,7 +346,7 @@ namespace ScriptableProcessor.Editor
             return scriptableSerialize;
         }
 
-        private void SaveScriptableSerialize()
+        private void PersistScriptableSerialize()
         {
             SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(SelectedIndex);
             SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
