@@ -46,12 +46,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ScriptabletHelper:
     m_Target: {fileID: 878295026019395734}
+    m_OptionTypeNames: []
     m_ScriptableInfos: []
   MonoHelper:
     m_Target: {fileID: 878295026019395734}
+    m_OptionTypeNames: []
     m_ScriptableInfos: []
   ObjectHelper:
     m_Target: {fileID: 878295026019395734}
+    m_OptionTypeNames: []
     m_ScriptableInfos: []
 --- !u!1 &7502205627577001943
 GameObject:

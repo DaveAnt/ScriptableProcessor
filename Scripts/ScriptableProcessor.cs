@@ -1,6 +1,6 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2022 DaveAnt. All rights reserved.
+Copyright © 2021-2023 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
@@ -17,10 +17,9 @@ namespace ScriptableProcessor
         private sbyte m_ScriptableTypeIndex;
         [SerializeField]
         private string[] m_OptionSerializeDatas;
-        [SerializeField]
-        private T[] m_OptionScriptables;
 
         private Action<GameObject, string[]> m_OnInitProc;
+        private T m_ScriptableProcessor;
 
         public Action<GameObject, string[]> OnInitProc
         {
@@ -36,7 +35,7 @@ namespace ScriptableProcessor
             {
                 if (m_ScriptableTypeIndex == -1)
                     return m_CustomScriptable;
-                return m_OptionScriptables[m_ScriptableTypeIndex];
+                return m_ScriptableProcessor;
             }
         }
 
@@ -47,17 +46,11 @@ namespace ScriptableProcessor
                 if (m_ScriptableTypeIndex == -1)
                     return;
 
-                if (m_OptionScriptables == null)
+                if (m_ScriptableProcessor == null)
                 {
-                    m_OptionScriptables = new T[optionTypeNames.Length];
-                }
-
-                if (m_OptionScriptables[m_ScriptableTypeIndex] == null)
-                {
-                    string optionSerializeData = string.Empty;
-                    if (m_ScriptableTypeIndex < m_OptionSerializeDatas.Length)
-                        optionSerializeData = m_OptionSerializeDatas[m_ScriptableTypeIndex];
-                    m_OptionScriptables[m_ScriptableTypeIndex] = TypeCreator.Create<T>(optionTypeNames[m_ScriptableTypeIndex], new CreateParams(target, optionSerializeData));
+                    m_ScriptableProcessor = TypeCreator.Create<T>(optionTypeNames[m_ScriptableTypeIndex],
+                        new CreateParams(target, m_OptionSerializeDatas[m_ScriptableTypeIndex],
+                        HideFlags.HideInHierarchy | HideFlags.HideInInspector));
                 }
             };
         }

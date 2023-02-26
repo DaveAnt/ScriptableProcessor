@@ -1,10 +1,11 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2022 DaveAnt. All rights reserved.
+Copyright © 2021-2023 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using UnityEditor;
 using ScriptableProcessor.Editor;
+using UnityEngine;
 
 namespace ScriptableProcessor.Example
 {
@@ -26,9 +27,10 @@ namespace ScriptableProcessor.Example
 
         public void OnDestroy()
         {
-            objectHelperEditor.Dispose();
-            scriptabletHelperEditor.Dispose();
-            monoHelperEditor.Dispose();
+            //Debug.LogError("MMMM");
+            //objectHelperEditor.Dispose();
+            //scriptabletHelperEditor.Dispose();
+            //monoHelperEditor.Dispose();
         }
 
         private void OnEnable()

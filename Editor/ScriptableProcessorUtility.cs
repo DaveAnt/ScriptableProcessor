@@ -1,81 +1,89 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2022 DaveAnt. All rights reserved.
+Copyright © 2021-2023 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace ScriptableProcessor.Editor
 {
-    public static class ScriptableProcessorUtility
+    [InitializeOnLoad]
+    public class ScriptableProcessorUtility
     {
-        #region SerializedPropertyManager
-        private static SerializedProperty[] m_EditSerializedProps;
-
-        public static int ArraySize
+        static ScriptableProcessorUtility()
         {
-            get
-            {
-                return m_EditSerializedProps[0].arraySize;
-            }
+            CompilationPipeline.compilationStarted += ScriptableProcessorManager.Dispose;
         }
-
-        public static void SetProps(params SerializedProperty[] serializedProps)
-        {
-            int arraySize = serializedProps[0].arraySize;
-            for (int i = 1; i < serializedProps.Length; ++i)
-            {
-                if (serializedProps[i].arraySize != arraySize)
-                {
-                    Debug.LogError("EditSerializedProps length is different");
-                    return;
-                }
-            }
-            m_EditSerializedProps = serializedProps;
-        }
-
-        public static SerializedProperty[] GetArrayElementAtIndex(int index)
-        {
-            SerializedProperty[] propResutls = new SerializedProperty[m_EditSerializedProps.Length];
-            for (int i = 0; i < m_EditSerializedProps.Length; ++i)
-                propResutls[i] = m_EditSerializedProps[i].GetArrayElementAtIndex(index);
-            return propResutls;
-        }
-
-        public static void InsertArrayElementAtIndex(int index, byte range = byte.MaxValue)
-        {
-            for (int i = 0; i < m_EditSerializedProps.Length; ++i)
-            {
-                SerializedProperty prop = m_EditSerializedProps[i];
-                if (index > prop.arraySize)
-                    Debug.LogError(string.Format("Insert {0} prop index out of range!", prop.name));
-                if ((range >> i & 1) == 1)
-                {
-                    prop.InsertArrayElementAtIndex(index);
-                }
-            }
-        }
-
-        public static void DeleteArrayElementAtIndex(int index, byte range = byte.MaxValue)
-        {
-            for (int i = 0; i < m_EditSerializedProps.Length; ++i)
-            {
-                SerializedProperty prop = m_EditSerializedProps[i];
-                if (index >= prop.arraySize)
-                    Debug.LogError(string.Format("Delete {0} prop index out of range!", prop.name));
-                if ((range >> i & 1) == 1)
-                {
-                    prop.DeleteArrayElementAtIndex(index);
-                }
-            }
-        }
-        #endregion
 
         #region ScriptableProcessorUtility
+
+        public static string FieldNameForDisplay(string fieldName)
+        {
+            if (string.IsNullOrEmpty(fieldName))
+            {
+                return string.Empty;
+            }
+
+            string str = Regex.Replace(fieldName, @"^m_", string.Empty);
+            str = Regex.Replace(str, @"((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", @" $1").TrimStart();
+            return str;
+        }
+
+        public static float DoRectDrawDefaultInspector(Rect beginPos, SerializedObject obj)
+        {
+            obj.UpdateIfRequiredOrScript();
+            SerializedProperty property = obj.GetIterator();
+            float height = DoRectDrawDefaultInspector(beginPos, property);
+            obj.ApplyModifiedProperties();
+            return height;
+        }
+
+        public static float DoRectDrawDefaultInspector(Rect beginPos, SerializedProperty property)
+        {
+            float height = 0;
+            bool expanded = true;
+
+            while (property.NextVisible(expanded))
+            {
+                using (new EditorGUI.DisabledScope("m_Script" == property.propertyPath))
+                {
+                    beginPos = new Rect(beginPos) { y = beginPos.y + beginPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUI.GetPropertyHeight(property) };
+                    height += (beginPos.height + EditorGUIUtility.standardVerticalSpacing);
+                    EditorGUI.PropertyField(beginPos, property, true);
+                }
+
+                expanded = false;
+            }
+            return height;
+        }
+
+        public static void DoLayoutDrawDefaultInspector(SerializedObject obj)
+        {
+            obj.UpdateIfRequiredOrScript();
+            SerializedProperty property = obj.GetIterator();
+            DoLayoutDrawDefaultInspector(property);
+            obj.ApplyModifiedProperties();
+        }
+
+        public static void DoLayoutDrawDefaultInspector(SerializedProperty property)
+        {
+            bool expanded = true;
+
+            while (property.NextVisible(expanded))
+            {
+                using (new EditorGUI.DisabledScope("m_Script" == property.propertyPath))
+                {
+                    EditorGUILayout.PropertyField(property, true);
+                }
+                expanded = false;
+            }
+        }
+
         public static string GetScriptableAssetPath(Object assetObject)
         {
             if (PrefabUtility.IsPartOfPrefabAsset(assetObject))

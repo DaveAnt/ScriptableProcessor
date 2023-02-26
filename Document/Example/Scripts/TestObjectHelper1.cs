@@ -1,6 +1,6 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2022 DaveAnt. All rights reserved.
+Copyright © 2021-2023 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;

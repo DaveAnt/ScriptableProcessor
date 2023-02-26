@@ -1,6 +1,6 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2022 DaveAnt. All rights reserved.
+Copyright © 2021-2023 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
@@ -11,6 +11,8 @@ namespace ScriptableProcessor
     public enum ScriptableType : byte
     {
         None,
+        Object,
+        NoSerialize,
         MonoBehaviour,
         ScriptableObject,
     }
@@ -22,7 +24,7 @@ namespace ScriptableProcessor
         public readonly GameObject objectTarget;
         public readonly HideFlags hideFlags;
 
-        public CreateParams(GameObject objectTarget, string serializeData = null, HideFlags hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector, string scriptableName = null)
+        public CreateParams(GameObject objectTarget, string serializeData = null, HideFlags hideFlags = HideFlags.None, string scriptableName = null)
         {
             this.serializeData = serializeData;
             this.scriptableName = scriptableName;
@@ -112,7 +114,7 @@ namespace ScriptableProcessor
                 Debug.LogWarning(string.Format("Can not find component type '{0}'.", scriptableType));
                 return null;
             }
-
+            
             Component component = createParams.objectTarget.AddComponent(scriptableType);
 
             if (component == null)
@@ -145,7 +147,7 @@ namespace ScriptableProcessor
             }
             else
             {
-                obj = System.Activator.CreateInstance(scriptableType);
+                obj = Activator.CreateInstance(scriptableType);
             }
             
             if (obj == null)

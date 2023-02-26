@@ -178,46 +178,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4649819588225369829, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ObjectHelper.m_ScriptableInfos.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4649819588225369829, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: MonoHelper.m_OptionTypeNames.Array.data[0]
-      value: ScriptableProcessor.Example.TestMonoHelper1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4649819588225369829, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableInfos.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4649819588225369829, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ObjectHelper.m_ScriptableInfos.Array.data[0].m_ScriptableTypeIndex
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4649819588225369829, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ObjectHelper.m_ScriptableInfos.Array.data[1].m_ScriptableTypeIndex
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4649819588225369829, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ObjectHelper.m_ScriptableInfos.Array.data[2].m_ScriptableTypeIndex
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4649819588225369829, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableInfos.Array.data[0].m_ScriptableTypeIndex
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4649819588225369829, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableInfos.Array.data[0].m_OptionScriptables.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 4649819588225369829, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableInfos.Array.data[0].m_OptionScriptables.Array.data[0]
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4649819588225369829, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
-      propertyPath: ScriptabletHelper.m_ScriptableInfos.Array.data[0].m_OptionSerializeDatas.Array.size
-      value: 4
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5de8502f93b6e74b8d7eada2f7f9551, type: 3}
 --- !u!1001 &724412412
@@ -276,6 +236,50 @@ PrefabInstance:
       value: ExamplePropertyDrawer
       objectReference: {fileID: 0}
     - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: MonoHelper.m_ScriptableInfos.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: ObjectHelper.m_ScriptableInfos.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: ScriptabletHelper.m_ScriptableInfos.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: MonoHelper.m_ScriptableInfos.Array.data[0].m_ScriptableTypeIndex
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: ObjectHelper.m_ScriptableInfos.Array.data[0].m_ScriptableTypeIndex
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: ScriptabletHelper.m_ScriptableInfos.Array.data[0].m_ScriptableTypeIndex
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: MonoHelper.m_ScriptableInfos.Array.data[0].m_OptionSerializeDatas.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: ObjectHelper.m_ScriptableInfos.Array.data[0].m_OptionSerializeDatas.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: ObjectHelper.m_ScriptableInfos.Array.data[1].m_OptionSerializeDatas.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: ObjectHelper.m_ScriptableInfos.Array.data[0].m_OptionSerializeDatas.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: ObjectHelper.m_ScriptableInfos.Array.data[0].m_OptionSerializeDatas.Array.data[1]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
       propertyPath: ScriptabletHelper.m_ScriptableInfos.Array.data[0].m_OptionScriptables.Array.data[1]
       value: 
       objectReference: {fileID: 0}
@@ -286,6 +290,10 @@ PrefabInstance:
     - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
       propertyPath: ScriptabletHelper.m_ScriptableInfos.Array.data[0].m_OptionScriptables.Array.data[3]
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6628765481459343591, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
+      propertyPath: ScriptabletHelper.m_ScriptableInfos.Array.data[0].m_OptionSerializeDatas.Array.size
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b1cbb2d6217d76044b60903b23f8c868, type: 3}
@@ -471,7 +479,7 @@ GameObject:
   - component: {fileID: 4649819588035063335}
   m_Layer: 0
   m_Name: ExampleNoPrefab
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

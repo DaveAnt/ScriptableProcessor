@@ -1,6 +1,6 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2022 DaveAnt. All rights reserved.
+Copyright © 2021-2023 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
@@ -21,11 +21,11 @@ namespace ScriptableProcessor
         public static readonly string[][] s_AssemblyNames =
         {
             new string[] {
-            "Assembly-CSharp",
+                "Assembly-CSharp",
             },
 #if UNITY_EDITOR
             new string[] {
-            "Assembly-CSharp-Editor",
+                "Assembly-CSharp-Editor",
             },
 #endif
         };
@@ -36,11 +36,7 @@ namespace ScriptableProcessor
 
         static AssemblyExt()
         {
-#if UNITY_EDITOR
-            s_Assemblies = new Assembly[2][];
-#else
-            s_Assemblies = new Assembly[1][];
-#endif
+            s_Assemblies = new Assembly[s_AssemblyNames.Length][];
             for (int index=0; index < s_AssemblyNames.Length; ++index)
             {
                 var assemblyNames = s_AssemblyNames[index];
@@ -115,7 +111,7 @@ namespace ScriptableProcessor
                 return type;
             }
 
-            foreach (System.Reflection.Assembly assembly in GetAssemblies(assemblyType))
+            foreach (Assembly assembly in GetAssemblies(assemblyType))
             {
                 type = Type.GetType(string.Format("{0}, {1}", typeName, assembly.FullName));
                 if (type != null)
