@@ -28,12 +28,15 @@ namespace ScriptableProcessor.Editor
         private readonly string m_OptionSerializeDatasDesc = "m_OptionSerializeDatas";
 
         private Component m_TargetComponent;
+        private GameObject m_TargetGameObject;
         private SerializedProperty m_ScriptableInfosProp;
         private SerializedProperty m_OptionTypeNamesProp;
         private SerializedProperty m_ScriptableProcessorProp;
         private ReorderableList m_ScriptableInfosReorderableList;
 
         private ScriptableType m_OptionScriptableType;
+        private ISerializedContentBase m_SerializedContent;
+        private string m_CurrentScriptableTypeName;
         private string[] m_ScriptableTypeNames;
         private int m_OptionBeginIndex;
         private float m_PropertyHeight;
@@ -48,11 +51,11 @@ namespace ScriptableProcessor.Editor
             }
         }
 
-        public GameObject Target
+        public GameObject TargetGameObject
         {
             get
             {
-                return m_TargetComponent.gameObject;
+                return m_TargetGameObject;
             }
         }
 
@@ -96,6 +99,21 @@ namespace ScriptableProcessor.Editor
             }
         }
 
+        public ISerializedContentBase this[string scriptableTypeName]
+        {
+            get
+            {
+                if (scriptableTypeName != m_CurrentScriptableTypeName) 
+                {
+                    m_SerializedContent = ScriptableProcessorManager.Acquire(m_TargetGameObject, scriptableTypeName);
+                    m_SerializedContent.FormJson(m_SerializedContent[m_TargetGameObject], OptionScriptableData);
+                    m_CurrentScriptableTypeName = scriptableTypeName;
+                }
+
+                return m_SerializedContent;
+            }
+        }
+
         public int SelectedIndex
         {
             get
@@ -122,13 +140,14 @@ namespace ScriptableProcessor.Editor
             m_OptionBeginIndex = IsCustomEnable ? -1 : 0;
         }
 
-        public override SerializationInspectorBase Init(SerializedObject serializedObject)
+        public override SerializationInspectorBase Init(SerializedObject obj)
         {
-            m_TargetComponent = serializedObject.targetObject as Component;
-            m_ScriptableProcessorProp = serializedObject.FindProperty(m_Name);
+            m_TargetComponent = (Component)obj.targetObject;
+            m_TargetGameObject = m_TargetComponent.gameObject;
+            m_ScriptableProcessorProp = obj.FindProperty(m_Name);
             m_OptionTypeNamesProp = m_ScriptableProcessorProp.FindPropertyRelative(m_OptionTypeNamesDesc);
             m_ScriptableInfosProp = m_ScriptableProcessorProp.FindPropertyRelative(m_ScriptableInfosDesc);
-            m_ScriptableInfosReorderableList = new ReorderableList(serializedObject, m_ScriptableInfosProp, true, false, true, true);
+            m_ScriptableInfosReorderableList = new ReorderableList(obj, m_ScriptableInfosProp, true, false, true, true);
             m_ScriptableProcessorProp.FindPropertyRelative(m_TargetDesc).objectReferenceValue = m_TargetComponent.gameObject;
 
             m_ScriptableInfosReorderableList.drawElementCallback = (Rect position, int index, bool selected, bool focused) =>
@@ -177,12 +196,19 @@ namespace ScriptableProcessor.Editor
             {
                 ReorderableList.defaultBehaviours.DoAddButton(list);
                 OnAddReorderableList(m_ScriptableInfosProp.arraySize - 1);
+                m_CurrentScriptableTypeName = string.Empty;
             };
 
             m_ScriptableInfosReorderableList.onRemoveCallback = (ReorderableList list) =>
             {
                 OnRemoveReorderableList(SelectedIndex);
                 ReorderableList.defaultBehaviours.DoRemoveButton(list);
+                m_CurrentScriptableTypeName = string.Empty;
+            };
+
+            m_ScriptableInfosReorderableList.onSelectCallback = (ReorderableList list) =>
+            {
+                m_CurrentScriptableTypeName = string.Empty;
             };
             Refresh();
 
@@ -208,17 +234,16 @@ namespace ScriptableProcessor.Editor
 
                 if (scriptableTypeIndexProp.intValue >= 0)
                 {
-                    GameObject target = Target;
                     string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
-                    ISerializedContentBase serializedContentBase = ScriptableProcessorManager.Acquire(target, currentScriptableTypeName);
-                    SerializedProperty prop = serializedContentBase[target];
+                    ISerializedContentBase serializedContentBase = this[currentScriptableTypeName];
+                    SerializedProperty prop = serializedContentBase[m_TargetGameObject];
 
                     EditorGUI.BeginChangeCheck();
                     ScriptableProcessorUtility.DoLayoutDrawDefaultInspector(prop);
                     if (EditorGUI.EndChangeCheck())
+                    {
                         OptionScriptableData = serializedContentBase.ToJson(prop);
-                    else
-                        serializedContentBase.FormJson(prop, OptionScriptableData);
+                    }
                 }
                 else if (customScriptableProp.objectReferenceValue != null)
                 {
@@ -268,17 +293,16 @@ namespace ScriptableProcessor.Editor
 
                 if (scriptableTypeIndexProp.intValue >= 0)
                 {
-                    GameObject target = Target;
                     string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
-                    ISerializedContentBase serializedContentBase = ScriptableProcessorManager.Acquire(target, currentScriptableTypeName);
-                    SerializedProperty prop = serializedContentBase[target];
+                    ISerializedContentBase serializedContentBase = this[currentScriptableTypeName];
+                    SerializedProperty prop = serializedContentBase[m_TargetGameObject];
 
                     EditorGUI.BeginChangeCheck();
                     m_PropertyHeight += ScriptableProcessorUtility.DoRectDrawDefaultInspector(lstPos, prop);
                     if (EditorGUI.EndChangeCheck())
+                    {
                         OptionScriptableData = serializedContentBase.ToJson(prop);
-                    else
-                        serializedContentBase.FormJson(prop, OptionScriptableData);
+                    }
                 }
                 else if (customScriptableProp.objectReferenceValue != null)
                 {
@@ -346,7 +370,7 @@ namespace ScriptableProcessor.Editor
 
         public override void Dispose()
         {
-            //m_ScriptableContext?.Dispose();
+
         }
 
         private string GetOptionTypeNameByIndex(int index)

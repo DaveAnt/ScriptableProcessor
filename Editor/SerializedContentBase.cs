@@ -181,7 +181,7 @@ namespace ScriptableProcessor
             public void OnInit(GameObject target, Type scriptabType)
             {
                 m_NativeObject = ObjectFactory.AddComponent(target, scriptabType);
-                m_NativeObject.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+                m_NativeObject.hideFlags = HideFlags.DontSave | HideFlags.HideInInspector;
                 m_ObjectSerialization = new SerializedObject(m_NativeObject);
             }
 
