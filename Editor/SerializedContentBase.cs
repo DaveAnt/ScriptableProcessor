@@ -20,7 +20,7 @@ namespace ScriptableProcessor.Editor
         public abstract void Dispose();
     }
 
-    public class PropContainer : ScriptableObject
+    public class ScriptableProcessorPacket : ScriptableObject
     {
         [SerializeReference]
         public object m_NativeObject;
@@ -30,29 +30,29 @@ namespace ScriptableProcessor.Editor
     {
         private readonly object m_NativeObject;
         private readonly string m_OrginJsonData;
-        private static SerializedObject m_ObjectSerialization;
-        private static PropContainer m_PropContainer;
+        private SerializedObject m_ObjectSerialization;
+        private ScriptableProcessorPacket m_ScriptableProcessorPacket;
 
-        private static PropContainer PropContainer
+        private ScriptableProcessorPacket ScriptableProcessorPacket
         {
             get
             {
-                if (m_PropContainer == null)
-                    m_PropContainer = ScriptableObject.CreateInstance<PropContainer>();
-                return m_PropContainer;
+                if (m_ScriptableProcessorPacket == null)
+                    m_ScriptableProcessorPacket = ScriptableObject.CreateInstance<ScriptableProcessorPacket>();
+                return m_ScriptableProcessorPacket;
             }
         }
 
-        private static SerializedObject ObjectSerialization
+        private SerializedObject ObjectSerialization
         {
             get
             {
                 if (m_ObjectSerialization == null)
-                    m_ObjectSerialization = new SerializedObject(PropContainer);
+                    m_ObjectSerialization = new SerializedObject(ScriptableProcessorPacket);
                 else if (m_ObjectSerialization.targetObject == null)
                 {
                     m_ObjectSerialization.Dispose();
-                    m_ObjectSerialization = new SerializedObject(PropContainer);
+                    m_ObjectSerialization = new SerializedObject(ScriptableProcessorPacket);
                 }
                 return m_ObjectSerialization;
             }
@@ -62,7 +62,7 @@ namespace ScriptableProcessor.Editor
         {
             get
             {
-                PropContainer.m_NativeObject = m_NativeObject;
+                ScriptableProcessorPacket.m_NativeObject = m_NativeObject;
                 SerializedProperty nativeProp = ObjectSerialization.FindProperty("m_NativeObject");
                 ObjectSerialization.Update();
                 return nativeProp;
@@ -90,10 +90,8 @@ namespace ScriptableProcessor.Editor
 
         public void Dispose()
         {
-            if(m_PropContainer != null)
-                UnityEngine.Object.DestroyImmediate(m_PropContainer);
-            if (m_ObjectSerialization != null)
-                m_ObjectSerialization.Dispose();
+            UnityEngine.Object.DestroyImmediate(m_ScriptableProcessorPacket);
+            m_ObjectSerialization.Dispose();
         }
     }
 
@@ -235,8 +233,7 @@ namespace ScriptableProcessor.Editor
 
         public void Dispose()
         {
-            UnityEngine.Object.DestroyImmediate(m_NativeObject);
-            m_ObjectSerialization.Dispose();
+            JsonUtility.FromJsonOverwrite(m_OrginJsonData, m_NativeObject);
         }
     }
 }
