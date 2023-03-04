@@ -4,15 +4,14 @@ Copyright © 2021-2023 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace ScriptableProcessor
+namespace ScriptableProcessor.Editor
 {
     public interface ISerializedContentBase
     {
-        public abstract SerializedProperty this[GameObject target] { get; }
+        public abstract SerializedProperty PropertyTarget { get; }
 
         public abstract string ToJson(SerializedProperty prop);
 
@@ -59,7 +58,7 @@ namespace ScriptableProcessor
             }
         }
 
-        public SerializedProperty this[GameObject target]
+        public SerializedProperty PropertyTarget
         {
             get
             {
@@ -130,7 +129,7 @@ namespace ScriptableProcessor
             }
         }
 
-        public SerializedProperty this[GameObject target]
+        public SerializedProperty PropertyTarget
         {
             get
             {
@@ -168,59 +167,55 @@ namespace ScriptableProcessor
 
     public class MonoBehaviourContent : ISerializedContentBase
     {
-        public class MonoStruct
-        {
-            public Component m_NativeObject;
-            public SerializedObject m_ObjectSerialization;
-
-            public MonoStruct(GameObject target, Type scriptabType)
-            {
-                OnInit(target,scriptabType);
-            }
-
-            public void OnInit(GameObject target, Type scriptabType)
-            {
-                m_NativeObject = ObjectFactory.AddComponent(target, scriptabType);
-                m_NativeObject.hideFlags = HideFlags.DontSave | HideFlags.HideInInspector;
-                m_ObjectSerialization = new SerializedObject(m_NativeObject);
-            }
-
-            public void Dispose()
-            {
-                UnityEngine.Object.DestroyImmediate(m_NativeObject);
-                m_ObjectSerialization.Dispose();
-            }
-        }
-
-        private string m_OrginJsonData;
         private readonly Type m_ScriptabType;
-        private readonly Dictionary<GameObject, MonoStruct> m_MonoStructPairs;
+        private readonly string m_OrginJsonData;
 
-        public SerializedProperty this[GameObject target]
+        private Component m_NativeObject;
+        private SerializedObject m_ObjectSerialization;
+
+        private Component NativeObject
         {
             get
             {
-                MonoStruct result;
-                if (!m_MonoStructPairs.TryGetValue(target, out result))
+                if (m_NativeObject == null)
                 {
-                    result = new MonoStruct(target,m_ScriptabType);
-                    m_OrginJsonData = JsonUtility.ToJson(result.m_NativeObject);
-                    m_MonoStructPairs.Add(target,result);
+                    m_NativeObject = ScriptableProcessorManager.ScriptableProcessorPacket.GetOrAddComponent(m_ScriptabType);
+                    m_NativeObject.hideFlags = HideFlags.DontSave | HideFlags.HideInInspector;
                 }
-                else if(result.m_NativeObject == null)
-                {
-                    result.m_ObjectSerialization.Dispose();
-                    result.OnInit(target, m_ScriptabType);
-                }
+                return m_NativeObject;
+            }
+        }
 
-                return result.m_ObjectSerialization.GetIterator();
+        private SerializedObject ObjectSerialization
+        {
+            get
+            {
+                if (m_ObjectSerialization == null)
+                    m_ObjectSerialization = new SerializedObject(NativeObject);
+                else if (m_ObjectSerialization.targetObject == null)
+                {
+                    m_ObjectSerialization.Dispose();
+                    m_ObjectSerialization = new SerializedObject(NativeObject);
+                }
+                return m_ObjectSerialization;
+            }
+        }
+
+        public SerializedProperty PropertyTarget
+        {
+            get
+            {
+                return ObjectSerialization.GetIterator();
             }
         }
 
         public MonoBehaviourContent(Type scriptableType)
         {
             m_ScriptabType = scriptableType;
-            m_MonoStructPairs = new Dictionary<GameObject, MonoStruct>();
+            m_NativeObject = ScriptableProcessorManager.ScriptableProcessorPacket.GetOrAddComponent(m_ScriptabType);
+            m_NativeObject.hideFlags = HideFlags.DontSave | HideFlags.HideInInspector;
+            m_ObjectSerialization = new SerializedObject(m_NativeObject);
+            m_OrginJsonData = JsonUtility.ToJson(m_NativeObject);
         }
 
         public string ToJson(SerializedProperty prop)
@@ -240,9 +235,8 @@ namespace ScriptableProcessor
 
         public void Dispose()
         {
-            foreach (var monoStruct in m_MonoStructPairs)
-                monoStruct.Value.Dispose();
-            m_MonoStructPairs.Clear();
+            UnityEngine.Object.DestroyImmediate(m_NativeObject);
+            m_ObjectSerialization.Dispose();
         }
     }
 }

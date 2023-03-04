@@ -1,3 +1,8 @@
+﻿/*
+ScriptableProcessor
+Copyright © 2021-2023 DaveAnt. All rights reserved.
+Blog: https://daveant.gitee.io/
+*/
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -7,6 +12,7 @@ namespace ScriptableProcessor.Editor
 {
     public static class ScriptableProcessorManager
     {
+        private static GameObject m_ScriptableProcessorPacket;
         private static Dictionary<Type, SerializationInspectorBase> m_TypeInspectorPairs
             = new Dictionary<Type, SerializationInspectorBase>();
         private static Dictionary<string, ISerializedContentBase> m_SerializedContentPairs
@@ -15,6 +21,16 @@ namespace ScriptableProcessor.Editor
             = new Dictionary<UnityEngine.Object, SerializedObject>();
         private static Dictionary<string, Type> m_ScriptableTypePairs
             = new Dictionary<string, Type>();
+
+        public static GameObject ScriptableProcessorPacket
+        {
+            get 
+            {
+                if (m_ScriptableProcessorPacket == null)
+                    m_ScriptableProcessorPacket = Resources.Load<GameObject>("ScriptableProcessorPacket");
+                return m_ScriptableProcessorPacket;
+            }
+        }
 
         public static SerializedObject Acquire(UnityEngine.Object custom)
         {
@@ -28,7 +44,7 @@ namespace ScriptableProcessor.Editor
             return result;
         }
 
-        public static ISerializedContentBase Acquire(GameObject gameObject,string scriptableName)
+        public static ISerializedContentBase Acquire(string scriptableName)
         {
             Type scriptableType;
             ISerializedContentBase result;

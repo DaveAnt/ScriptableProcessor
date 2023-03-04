@@ -53,7 +53,5 @@ public class TestScriptabletHelper1Inspector : SerializedInspectorBase
 具体可参考ScriptableProcessorInspector。
 
 # 4.注意事项
-* 编辑监视面板时，不要一边在场景下编辑，一边又跳转到资源目录下编辑，可能会生成序列化的垃圾(此序列化数据可能不被插件内部使用，可手动删掉)。所以在场景下编辑时，及时保存再到资源目录下编辑即可。
-* 插件支持ScriptableObject，MonoBehaviour控制序列化的管理，不继承以上类时，插件将在启动时反射创建类实例。
-
-![编辑警告](./Document/Images/WarnEditing.png)
+* ScriptableProcessorPacket用于MonoBehaviour挂载的gameobject，不会产生任何影响，切勿删除！！！
+* 如果需要反射其他程序集对象，自行修改AssemblyExt脚本里的配置。

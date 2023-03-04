@@ -28,7 +28,6 @@ namespace ScriptableProcessor.Editor
         private readonly string m_OptionSerializeDatasDesc = "m_OptionSerializeDatas";
 
         private Component m_TargetComponent;
-        private GameObject m_TargetGameObject;
         private SerializedProperty m_ScriptableInfosProp;
         private SerializedProperty m_OptionTypeNamesProp;
         private SerializedProperty m_ScriptableProcessorProp;
@@ -48,14 +47,6 @@ namespace ScriptableProcessor.Editor
             {
                 return (OptionScriptableType == ScriptableType.MonoBehaviour ||
                     OptionScriptableType == ScriptableType.ScriptableObject);
-            }
-        }
-
-        public GameObject TargetGameObject
-        {
-            get
-            {
-                return m_TargetGameObject;
             }
         }
 
@@ -105,8 +96,8 @@ namespace ScriptableProcessor.Editor
             {
                 if (scriptableTypeName != m_CurrentScriptableTypeName) 
                 {
-                    m_SerializedContent = ScriptableProcessorManager.Acquire(m_TargetGameObject, scriptableTypeName);
-                    m_SerializedContent.FormJson(m_SerializedContent[m_TargetGameObject], OptionScriptableData);
+                    m_SerializedContent = ScriptableProcessorManager.Acquire(scriptableTypeName);
+                    m_SerializedContent.FormJson(m_SerializedContent.PropertyTarget, OptionScriptableData);
                     m_CurrentScriptableTypeName = scriptableTypeName;
                 }
 
@@ -143,7 +134,6 @@ namespace ScriptableProcessor.Editor
         public override SerializationInspectorBase Init(SerializedObject obj)
         {
             m_TargetComponent = (Component)obj.targetObject;
-            m_TargetGameObject = m_TargetComponent.gameObject;
             m_ScriptableProcessorProp = obj.FindProperty(m_Name);
             m_OptionTypeNamesProp = m_ScriptableProcessorProp.FindPropertyRelative(m_OptionTypeNamesDesc);
             m_ScriptableInfosProp = m_ScriptableProcessorProp.FindPropertyRelative(m_ScriptableInfosDesc);
@@ -236,7 +226,7 @@ namespace ScriptableProcessor.Editor
                 {
                     string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
                     ISerializedContentBase serializedContentBase = this[currentScriptableTypeName];
-                    SerializedProperty prop = serializedContentBase[m_TargetGameObject];
+                    SerializedProperty prop = serializedContentBase.PropertyTarget;
 
                     EditorGUI.BeginChangeCheck();
                     ScriptableProcessorUtility.DoLayoutDrawDefaultInspector(prop);
@@ -295,7 +285,7 @@ namespace ScriptableProcessor.Editor
                 {
                     string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
                     ISerializedContentBase serializedContentBase = this[currentScriptableTypeName];
-                    SerializedProperty prop = serializedContentBase[m_TargetGameObject];
+                    SerializedProperty prop = serializedContentBase.PropertyTarget;
 
                     EditorGUI.BeginChangeCheck();
                     m_PropertyHeight += ScriptableProcessorUtility.DoRectDrawDefaultInspector(lstPos, prop);

@@ -13,7 +13,7 @@ using UnityEngine;
 namespace ScriptableProcessor.Editor
 {
     [InitializeOnLoad]
-    public class ScriptableProcessorUtility
+    public static class ScriptableProcessorUtility
     {
         static ScriptableProcessorUtility()
         {
@@ -21,6 +21,14 @@ namespace ScriptableProcessor.Editor
         }
 
         #region ScriptableProcessorUtility
+
+        public static Component GetOrAddComponent(this GameObject gameObject,System.Type scriptabType)
+        {
+            Component result;
+            if (!gameObject.TryGetComponent(scriptabType, out result))
+                result = gameObject.AddComponent(scriptabType);
+            return result;
+        }
 
         public static string FieldNameForDisplay(string fieldName)
         {
