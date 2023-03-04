@@ -233,7 +233,7 @@ namespace ScriptableProcessor.Editor
 
         public void Dispose()
         {
-            JsonUtility.FromJsonOverwrite(m_OrginJsonData, m_NativeObject);
+            JsonUtility.FromJsonOverwrite(m_OrginJsonData, NativeObject);
         }
     }
 }
