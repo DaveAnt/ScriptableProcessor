@@ -207,17 +207,17 @@ namespace ScriptableProcessor.Editor
 
         public override void Draw()
         {
-            m_ScriptableProcessorProp.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(m_ScriptableProcessorProp.isExpanded, m_HeaderName);
-            if (m_ScriptableProcessorProp.isExpanded)
-            {
-                if (OptionScriptableType != ScriptableType.NoSerialize && GUILayout.Button("Clear Trashes"))
-                    OnClearTrashesClick();
-                m_ScriptableInfosReorderableList.DoLayoutList();
-            }
-            EditorGUILayout.EndFoldoutHeaderGroup();
-
             try
             {
+                m_ScriptableProcessorProp.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(m_ScriptableProcessorProp.isExpanded, m_HeaderName);
+                if (m_ScriptableProcessorProp.isExpanded)
+                {
+                    if (OptionScriptableType != ScriptableType.NoSerialize && GUILayout.Button("Clear Trashes"))
+                        OnClearTrashesClick();
+                    m_ScriptableInfosReorderableList.DoLayoutList();
+                }
+                EditorGUILayout.EndFoldoutHeaderGroup();
+
                 if (m_ScriptableProcessorProp.isExpanded && OptionScriptableType != ScriptableType.NoSerialize && SelectedIndex != -1)
                 {
                     SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(SelectedIndex);
@@ -250,7 +250,7 @@ namespace ScriptableProcessor.Editor
             }
             catch
             {
-                Debug.LogWarning("scriptableProcessor member variable change!!!");
+                ScriptableProcessorManager.Dispose(null);
             }
         }
 
@@ -258,31 +258,31 @@ namespace ScriptableProcessor.Editor
         {
             position.height = EditorGUIUtility.singleLineHeight;
             m_PropertyHeight = (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing);
-            m_ScriptableProcessorProp.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(position, m_ScriptableProcessorProp.isExpanded, m_HeaderName);
-            Rect buttonPos, lstPos = Rect.zero;
-            if (m_ScriptableProcessorProp.isExpanded)
-            {
-                if (OptionScriptableType != ScriptableType.NoSerialize)
-                {
-                    buttonPos = new Rect(position) { y = position.y + position.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight };
-                    lstPos = new Rect(buttonPos) { y = buttonPos.y + buttonPos.height + EditorGUIUtility.standardVerticalSpacing, height = m_ScriptableInfosReorderableList.GetHeight() };
-                    m_PropertyHeight += (buttonPos.height + EditorGUIUtility.standardVerticalSpacing);
-
-                    if (GUI.Button(buttonPos, "Clear Trashes"))
-                        OnClearTrashesClick();
-                }
-                else
-                {
-                    lstPos = new Rect(position) { y = position.y + position.height + EditorGUIUtility.standardVerticalSpacing, height = m_ScriptableInfosReorderableList.GetHeight() };
-                }
-
-                m_PropertyHeight += (lstPos.height + EditorGUIUtility.standardVerticalSpacing);
-                m_ScriptableInfosReorderableList.DoList(lstPos);
-            }
-            EditorGUI.EndFoldoutHeaderGroup();
-
             try
             {
+                m_ScriptableProcessorProp.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(position, m_ScriptableProcessorProp.isExpanded, m_HeaderName);
+                Rect buttonPos, lstPos = Rect.zero;
+                if (m_ScriptableProcessorProp.isExpanded)
+                {
+                    if (OptionScriptableType != ScriptableType.NoSerialize)
+                    {
+                        buttonPos = new Rect(position) { y = position.y + position.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight };
+                        lstPos = new Rect(buttonPos) { y = buttonPos.y + buttonPos.height + EditorGUIUtility.standardVerticalSpacing, height = m_ScriptableInfosReorderableList.GetHeight() };
+                        m_PropertyHeight += (buttonPos.height + EditorGUIUtility.standardVerticalSpacing);
+
+                        if (GUI.Button(buttonPos, "Clear Trashes"))
+                            OnClearTrashesClick();
+                    }
+                    else
+                    {
+                        lstPos = new Rect(position) { y = position.y + position.height + EditorGUIUtility.standardVerticalSpacing, height = m_ScriptableInfosReorderableList.GetHeight() };
+                    }
+
+                    m_PropertyHeight += (lstPos.height + EditorGUIUtility.standardVerticalSpacing);
+                    m_ScriptableInfosReorderableList.DoList(lstPos);
+                }
+                EditorGUI.EndFoldoutHeaderGroup();
+
                 if (m_ScriptableProcessorProp.isExpanded && OptionScriptableType != ScriptableType.NoSerialize && SelectedIndex != -1)
                 {
                     Rect infoPos = new Rect(lstPos) { y = lstPos.y + lstPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight * 2 };
@@ -317,7 +317,7 @@ namespace ScriptableProcessor.Editor
             }
             catch
             {
-                Debug.LogWarning("scriptableProcessor member variable change!!!");
+                ScriptableProcessorManager.Dispose(null);
             }
 
             return m_PropertyHeight;
@@ -375,7 +375,7 @@ namespace ScriptableProcessor.Editor
 
         public override void Dispose()
         {
-
+            ScriptableProcessorManager.Dispose(null);
         }
 
         private string GetOptionTypeNameByIndex(int index)
