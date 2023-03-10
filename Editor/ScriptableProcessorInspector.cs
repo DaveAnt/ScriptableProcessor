@@ -216,34 +216,41 @@ namespace ScriptableProcessor.Editor
             }
             EditorGUILayout.EndFoldoutHeaderGroup();
 
-            if (m_ScriptableProcessorProp.isExpanded && OptionScriptableType != ScriptableType.NoSerialize && SelectedIndex != -1)
+            try
             {
-                SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(SelectedIndex);
-                SerializedProperty customScriptableProp = scriptableInfoProp.FindPropertyRelative(m_CustomScriptableDesc);
-                SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
-
-                if (scriptableTypeIndexProp.intValue >= 0)
+                if (m_ScriptableProcessorProp.isExpanded && OptionScriptableType != ScriptableType.NoSerialize && SelectedIndex != -1)
                 {
-                    string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
-                    ISerializedContentBase serializedContentBase = this[currentScriptableTypeName];
-                    SerializedProperty prop = serializedContentBase.PropertyTarget;
+                    SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(SelectedIndex);
+                    SerializedProperty customScriptableProp = scriptableInfoProp.FindPropertyRelative(m_CustomScriptableDesc);
+                    SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
 
-                    EditorGUI.BeginChangeCheck();
-                    ScriptableProcessorUtility.DoLayoutDrawDefaultInspector(prop);
-                    if (EditorGUI.EndChangeCheck())
+                    if (scriptableTypeIndexProp.intValue >= 0)
                     {
-                        OptionScriptableData = serializedContentBase.ToJson(prop);
+                        string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
+                        ISerializedContentBase serializedContentBase = this[currentScriptableTypeName];
+                        SerializedProperty prop = serializedContentBase.PropertyTarget;
+
+                        EditorGUI.BeginChangeCheck();
+                        ScriptableProcessorUtility.DoLayoutDrawDefaultInspector(prop);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            OptionScriptableData = serializedContentBase.ToJson(prop);
+                        }
+                    }
+                    else if (customScriptableProp.objectReferenceValue != null)
+                    {
+                        SerializedObject serializedObject = ScriptableProcessorManager.Acquire(customScriptableProp.objectReferenceValue);
+                        ScriptableProcessorUtility.DoLayoutDrawDefaultInspector(serializedObject);
+                    }
+                    else
+                    {
+                        EditorGUILayout.HelpBox("customscriptable is null.", MessageType.Warning);
                     }
                 }
-                else if (customScriptableProp.objectReferenceValue != null)
-                {
-                    SerializedObject serializedObject = ScriptableProcessorManager.Acquire(customScriptableProp.objectReferenceValue);
-                    ScriptableProcessorUtility.DoLayoutDrawDefaultInspector(serializedObject);
-                }
-                else
-                {
-                    EditorGUILayout.HelpBox("customscriptable is null.", MessageType.Warning);
-                }
+            }
+            catch
+            {
+                Debug.LogWarning("scriptableProcessor member variable change!!!");
             }
         }
 
@@ -274,37 +281,45 @@ namespace ScriptableProcessor.Editor
             }
             EditorGUI.EndFoldoutHeaderGroup();
 
-            if (m_ScriptableProcessorProp.isExpanded && OptionScriptableType != ScriptableType.NoSerialize && SelectedIndex != -1)
+            try
             {
-                Rect infoPos = new Rect(lstPos) { y = lstPos.y + lstPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight * 2 };
-                SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(SelectedIndex);
-                SerializedProperty customScriptableProp = scriptableInfoProp.FindPropertyRelative(m_CustomScriptableDesc);
-                SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
-
-                if (scriptableTypeIndexProp.intValue >= 0)
+                if (m_ScriptableProcessorProp.isExpanded && OptionScriptableType != ScriptableType.NoSerialize && SelectedIndex != -1)
                 {
-                    string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
-                    ISerializedContentBase serializedContentBase = this[currentScriptableTypeName];
-                    SerializedProperty prop = serializedContentBase.PropertyTarget;
+                    Rect infoPos = new Rect(lstPos) { y = lstPos.y + lstPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight * 2 };
+                    SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(SelectedIndex);
+                    SerializedProperty customScriptableProp = scriptableInfoProp.FindPropertyRelative(m_CustomScriptableDesc);
+                    SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
 
-                    EditorGUI.BeginChangeCheck();
-                    m_PropertyHeight += ScriptableProcessorUtility.DoRectDrawDefaultInspector(lstPos, prop);
-                    if (EditorGUI.EndChangeCheck())
+                    if (scriptableTypeIndexProp.intValue >= 0)
                     {
-                        OptionScriptableData = serializedContentBase.ToJson(prop);
+                        string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
+                        ISerializedContentBase serializedContentBase = this[currentScriptableTypeName];
+                        SerializedProperty prop = serializedContentBase.PropertyTarget;
+
+                        EditorGUI.BeginChangeCheck();
+                        m_PropertyHeight += ScriptableProcessorUtility.DoRectDrawDefaultInspector(lstPos, prop);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            OptionScriptableData = serializedContentBase.ToJson(prop);
+                        }
+                    }
+                    else if (customScriptableProp.objectReferenceValue != null)
+                    {
+                        SerializedObject serializedObject = ScriptableProcessorManager.Acquire(customScriptableProp.objectReferenceValue);
+                        m_PropertyHeight += ScriptableProcessorUtility.DoRectDrawDefaultInspector(lstPos, serializedObject);
+                    }
+                    else
+                    {
+                        EditorGUI.HelpBox(infoPos, "customscriptable is null.", MessageType.Warning);
+                        m_PropertyHeight += (infoPos.height + EditorGUIUtility.standardVerticalSpacing);
                     }
                 }
-                else if (customScriptableProp.objectReferenceValue != null)
-                {
-                    SerializedObject serializedObject = ScriptableProcessorManager.Acquire(customScriptableProp.objectReferenceValue);
-                    m_PropertyHeight += ScriptableProcessorUtility.DoRectDrawDefaultInspector(lstPos, serializedObject);
-                }
-                else
-                {
-                    EditorGUI.HelpBox(infoPos, "customscriptable is null.", MessageType.Warning);
-                    m_PropertyHeight += (infoPos.height + EditorGUIUtility.standardVerticalSpacing);
-                }
             }
+            catch
+            {
+                Debug.LogWarning("scriptableProcessor member variable change!!!");
+            }
+
             return m_PropertyHeight;
         }
 
