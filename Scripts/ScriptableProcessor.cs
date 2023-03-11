@@ -68,15 +68,17 @@ namespace ScriptableProcessor
 
         public T this[int index]
         {
-            get {
+            get
+            {
                 if (index >= m_ScriptableInfos.Length)
                 {
                     Debug.LogWarning("ScriptableInfo index out of range!");
                     return null;
                 }
 
-                m_ScriptableInfos[index]?.OnInitProc(m_Target, m_OptionTypeNames);
-                return m_ScriptableInfos[index].ScriptableTarget;
+                ScriptableInfo<T> scriptableInfo = m_ScriptableInfos[index];
+                scriptableInfo.OnInitProc?.Invoke(m_Target, m_OptionTypeNames);
+                return scriptableInfo.ScriptableTarget;
             }
         }
     }
