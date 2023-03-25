@@ -47,17 +47,9 @@ namespace ScriptableProcessor.Editor
         {
             get
             {
-                try
-                {
-                    if (m_ObjectSerialization == null)
-                        m_ObjectSerialization = new SerializedObject(ScriptableProcessorPacket);
-                    else if (m_ObjectSerialization.targetObject == null)
-                    {
-                        m_ObjectSerialization.Dispose();
-                        m_ObjectSerialization = new SerializedObject(ScriptableProcessorPacket);
-                    }
-                }
-                catch
+                if (m_ObjectSerialization == null)
+                    m_ObjectSerialization = new SerializedObject(ScriptableProcessorPacket);
+                else if (m_ObjectSerialization.targetObject == null)
                 {
                     m_ObjectSerialization.Dispose();
                     m_ObjectSerialization = new SerializedObject(ScriptableProcessorPacket);
@@ -80,19 +72,19 @@ namespace ScriptableProcessor.Editor
         public BaseObjectContent(Type scriptableType)
         {
             m_NativeObject = Activator.CreateInstance(scriptableType);
-            m_OrginJsonData = EditorJsonUtility.ToJson(m_NativeObject);
+            m_OrginJsonData = JsonUtility.ToJson(m_NativeObject);
         }
 
         public string ToJson(SerializedProperty prop)
         {
             ObjectSerialization.ApplyModifiedProperties();
-            return EditorJsonUtility.ToJson(m_NativeObject);
+            return JsonUtility.ToJson(m_NativeObject);
         }
 
         public void FormJson(SerializedProperty prop, string json)
         {
             json = string.IsNullOrEmpty(json) ? m_OrginJsonData : json;
-            EditorJsonUtility.FromJsonOverwrite(json, m_NativeObject);
+            JsonUtility.FromJsonOverwrite(json, m_NativeObject);
             ObjectSerialization.Update();
         }
 
@@ -124,17 +116,9 @@ namespace ScriptableProcessor.Editor
         {
             get
             {
-                try
-                {
-                    if (m_ObjectSerialization == null)
-                        m_ObjectSerialization = new SerializedObject(NativeObject);
-                    else if (m_ObjectSerialization.targetObject == null)
-                    {
-                        m_ObjectSerialization.Dispose();
-                        m_ObjectSerialization = new SerializedObject(NativeObject);
-                    }
-                }
-                catch
+                if (m_ObjectSerialization == null)
+                    m_ObjectSerialization = new SerializedObject(NativeObject);
+                else if (m_ObjectSerialization.targetObject == null)
                 {
                     m_ObjectSerialization.Dispose();
                     m_ObjectSerialization = new SerializedObject(NativeObject);
@@ -156,19 +140,19 @@ namespace ScriptableProcessor.Editor
             m_ScriptabType = scriptableType;
             m_NativeObject = ScriptableObject.CreateInstance(scriptableType);
             m_ObjectSerialization = new SerializedObject(m_NativeObject);
-            m_OrginJsonData = EditorJsonUtility.ToJson(m_NativeObject);
+            m_OrginJsonData = JsonUtility.ToJson(m_NativeObject);
         }
 
         public string ToJson(SerializedProperty prop)
         {
             ObjectSerialization.ApplyModifiedProperties();
-            return EditorJsonUtility.ToJson(NativeObject);
+            return JsonUtility.ToJson(NativeObject);
         }
 
         public void FormJson(SerializedProperty prop, string json)
         {
             json = string.IsNullOrEmpty(json) ? m_OrginJsonData : json;
-            EditorJsonUtility.FromJsonOverwrite(json, NativeObject);
+            JsonUtility.FromJsonOverwrite(json, NativeObject);
             ObjectSerialization.Update();
         }
 
@@ -204,17 +188,9 @@ namespace ScriptableProcessor.Editor
         {
             get
             {
-                try
-                {
-                    if (m_ObjectSerialization == null)
-                        m_ObjectSerialization = new SerializedObject(NativeObject);
-                    else if (m_ObjectSerialization.targetObject == null)
-                    {
-                        m_ObjectSerialization.Dispose();
-                        m_ObjectSerialization = new SerializedObject(NativeObject);
-                    }
-                }
-                catch
+                if (m_ObjectSerialization == null)
+                    m_ObjectSerialization = new SerializedObject(NativeObject);
+                else if (m_ObjectSerialization.targetObject == null)
                 {
                     m_ObjectSerialization.Dispose();
                     m_ObjectSerialization = new SerializedObject(NativeObject);
@@ -237,27 +213,27 @@ namespace ScriptableProcessor.Editor
             m_NativeObject = ScriptableProcessorManager.ScriptableProcessorPacket.GetOrAddComponent(m_ScriptabType);
             m_NativeObject.hideFlags = HideFlags.DontSave | HideFlags.HideInInspector;
             m_ObjectSerialization = new SerializedObject(m_NativeObject);
-            m_OrginJsonData = EditorJsonUtility.ToJson(m_NativeObject);
+            m_OrginJsonData = JsonUtility.ToJson(m_NativeObject);
         }
 
         public string ToJson(SerializedProperty prop)
         {
             SerializedObject serializedObject = prop.serializedObject;
             serializedObject.ApplyModifiedProperties();
-            return EditorJsonUtility.ToJson(serializedObject.targetObject);
+            return JsonUtility.ToJson(serializedObject.targetObject);
         }
 
         public void FormJson(SerializedProperty prop, string json)
         {
             json = string.IsNullOrEmpty(json) ? m_OrginJsonData : json;
             SerializedObject serializedObject = prop.serializedObject;
-            EditorJsonUtility.FromJsonOverwrite(json, serializedObject.targetObject);
+            JsonUtility.FromJsonOverwrite(json, serializedObject.targetObject);
             serializedObject.Update();
         }
 
         public void Dispose()
         {
-            EditorJsonUtility.FromJsonOverwrite(m_OrginJsonData, NativeObject);
+            JsonUtility.FromJsonOverwrite(m_OrginJsonData, NativeObject);
         }
     }
 }
