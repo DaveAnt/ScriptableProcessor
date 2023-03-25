@@ -47,9 +47,17 @@ namespace ScriptableProcessor.Editor
         {
             get
             {
-                if (m_ObjectSerialization == null)
-                    m_ObjectSerialization = new SerializedObject(ScriptableProcessorPacket);
-                else if (m_ObjectSerialization.targetObject == null)
+                try
+                {
+                    if (m_ObjectSerialization == null)
+                        m_ObjectSerialization = new SerializedObject(ScriptableProcessorPacket);
+                    else if (m_ObjectSerialization.targetObject == null)
+                    {
+                        m_ObjectSerialization.Dispose();
+                        m_ObjectSerialization = new SerializedObject(ScriptableProcessorPacket);
+                    }
+                }
+                catch
                 {
                     m_ObjectSerialization.Dispose();
                     m_ObjectSerialization = new SerializedObject(ScriptableProcessorPacket);
@@ -116,9 +124,17 @@ namespace ScriptableProcessor.Editor
         {
             get
             {
-                if (m_ObjectSerialization == null)
-                    m_ObjectSerialization = new SerializedObject(NativeObject);
-                else if (m_ObjectSerialization.targetObject == null)
+                try
+                {
+                    if (m_ObjectSerialization == null)
+                        m_ObjectSerialization = new SerializedObject(NativeObject);
+                    else if (m_ObjectSerialization.targetObject == null)
+                    {
+                        m_ObjectSerialization.Dispose();
+                        m_ObjectSerialization = new SerializedObject(NativeObject);
+                    }
+                }
+                catch
                 {
                     m_ObjectSerialization.Dispose();
                     m_ObjectSerialization = new SerializedObject(NativeObject);
@@ -188,9 +204,17 @@ namespace ScriptableProcessor.Editor
         {
             get
             {
-                if (m_ObjectSerialization == null)
-                    m_ObjectSerialization = new SerializedObject(NativeObject);
-                else if (m_ObjectSerialization.targetObject == null)
+                try
+                {
+                    if (m_ObjectSerialization == null)
+                        m_ObjectSerialization = new SerializedObject(NativeObject);
+                    else if (m_ObjectSerialization.targetObject == null)
+                    {
+                        m_ObjectSerialization.Dispose();
+                        m_ObjectSerialization = new SerializedObject(NativeObject);
+                    }
+                }
+                catch
                 {
                     m_ObjectSerialization.Dispose();
                     m_ObjectSerialization = new SerializedObject(NativeObject);
