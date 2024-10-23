@@ -1,6 +1,6 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2023 DaveAnt. All rights reserved.
+Copyright © 2021-2024 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
@@ -24,41 +24,22 @@ namespace ScriptableProcessor
         public readonly GameObject objectTarget;
         public readonly HideFlags hideFlags;
 
-        public CreateParams(GameObject objectTarget, string serializeData = null, HideFlags hideFlags = HideFlags.None, string scriptableName = null)
+        public CreateParams(string serializeData = null, GameObject objectTarget = null, string scriptableName = null, HideFlags hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector)
         {
             this.serializeData = serializeData;
             this.scriptableName = scriptableName;
             this.objectTarget = objectTarget;
             this.hideFlags = hideFlags;
-        }
-
-        public CreateParams(string serializeData)
-        {
-            this.serializeData = serializeData;
-            this.hideFlags = HideFlags.None;
-            this.scriptableName = null;
-            this.objectTarget = null;
-        }
-
-        public CreateParams(string serializeData, GameObject objectTarget, HideFlags hideFlags = HideFlags.None)
-        {
-            this.serializeData = serializeData;
-            this.objectTarget = objectTarget;
-            this.hideFlags = hideFlags;
-            this.scriptableName = null;
-        }
-
-        public CreateParams(string serializeData, string scriptableName = null, HideFlags hideFlags = HideFlags.None)
-        {
-            this.scriptableName = scriptableName;
-            this.serializeData = serializeData;
-            this.hideFlags = hideFlags;
-            this.objectTarget = null;
         }
     }
 
     public static class TypeCreator
     {
+        public static object Create(string scriptableTypeName, CreateParams createParams, Action<object, ScriptableType> procResultFunc = null)
+        {
+            return Create<object>(scriptableTypeName, createParams, procResultFunc);
+        }
+
         public static T Create<T>(string scriptableTypeName, CreateParams createParams, Action<T, ScriptableType> procResultFunc = null) where T : class
         {
             T instance;

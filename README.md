@@ -1,10 +1,11 @@
 # ScriptableProcessor
-# 1.插件说明 
-Hi！ 伙计，是否遇到过这种情况，假设工程里存在DataTableHelperBase.cs抽象基类，继承基类的父类有(TxtDataTableHelper、CsvDataTableHelper、XmlDataTableHelper、JsonDataTableHelper)等，希望通过监视面板动态创建和设置这些父类，但是很可惜目前著名的Odin插件不存在这个功能。
-ScriptableProcessor就是解决以上问题的插件，通过反射可多次快速的把这些父类进行序列化的管理插件，并提供友好方便的监视面板进行管理。
+# 1.Introduce
+Hi there! Have you ever encountered a situation where there is an abstract base class called DataTableHelperBase in the project, with parent classes such as TxtDataTableHelper, CsvDataTableHelper, XmlDataTableHelper, JsonDataTableHelper, etc.? And you wish to dynamically select and set parameters for the parent class directly in the inspector panel.
+ScriptableProcessor is the plugin that solves the above problem. It allows for quick serialization and management of these parent classes through reflection, and provides a user-friendly inspector panel for easy management.
+Note: This version is mainly used for learning. If conditions permit, use Odin Inspector directly. It is a more powerful and comprehensive plugin.
 
-# 2.使用例子
-工程中有两个例子ExampleInspectorGUI和ExamplePropertyDrawer脚本，具体初始化方式如下:
+# 2.Examples
+In the project, there are two example scripts: ExampleInspectorGUI and ExamplePropertyDrawer. The specific initialization methods are as follows:
 ```
 public class ExamplePropertyDrawer : MonoBehaviour
 {
@@ -18,40 +19,19 @@ public class ExamplePropertyDrawer : MonoBehaviour
     }
 }
 ```
-以上写法简单方便，接下来查看ScriptableProcessor<TestScriptableHelperBase>的监视面板样式，如下图：
-![监视面板效果](./Document/Images/OnInspectorGUI.png)
+The above approach is simple, and results in the final inspector panel style for ScriptableProcessor<TestScriptableHelperBase> as shown in the following image:
 
-下拉框中选项是通过反射获取到所有继承TestScriptableHelperBase的父类，当创建新父类时，开发人员不需要改变任何东西，监视面板中就会多出创建的父类选型，选中父类时，红色框内属性就是此父类可序列化编辑的属性。
+![InspectorWin](./Document/Images/OnInspectorGUI.png)
 
-# 3.定制父类监视面板
-父类属性面板默认采用Unity样式显示，假设需要定制TestScriptabletHelper1监视面板时，ScriptableProcessor也是提供支持的，可编写如下脚本：
-```
-[ScriptableInspectorAttribute(typeof(TestScriptabletHelper1))]
-public class TestScriptabletHelper1Inspector : SerializedInspectorBase
-{
-    public override void Init(SerializedObject serializedObject)
-    {
-        throw new NotImplementedException();
-    }
+The dropdown options are obtained through reflection, including all parent classes that inherit from TestScriptableHelperBase. When a new parent class is created, developers do not need to make any changes; the inspector panel will automatically display the newly created parent class as an option. When a parent class is selected, the properties that can be serialized and edited for this parent class will be displayed in the red box.
 
-    public override void Draw()
-    {
-        throw new System.NotImplementedException();
-    }
+# 3.Finetune inspector
+[ScriptableProcessor(isLock, isHeader, indentLevel)] Explanation of the three parameters:
+- isLock Whether to disable the add and delete buttons, and only display a single selection.
+- isHeader Whether to remove the header and not display collapsing.
+- indentLevel Indentation when drawing ScriptableProcessor.
 
-    public override void Draw(Rect beginPos)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void Refresh()
-    {
-        throw new NotImplementedException();
-    }
-}
-```
-具体可参考ScriptableProcessorInspector。
-
-# 4.注意事项
-* ScriptableProcessorPacket用于MonoBehaviour挂载的gameobject，不会产生任何影响，切勿删除！！！
-* 如果需要反射其他程序集对象，自行修改AssemblyExt脚本里的配置。
+![IntroduceWin](./Document/Images/Introduce.png)
+# 4.Precautions
+* If you need to reflect objects from other assemblies, modify the configuration in the AssemblyExt script yourself.
+* If the base class is not ScriptableObject or MonoBehaviour, the Custom option will not appear.

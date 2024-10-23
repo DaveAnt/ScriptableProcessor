@@ -1,6 +1,6 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2023 DaveAnt. All rights reserved.
+Copyright © 2021-2024 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using UnityEditor;
@@ -22,12 +22,12 @@ namespace ScriptableProcessor.Editor
             throw new System.NotImplementedException();
         }
 
-        public virtual SerializationInspectorBase Init(SerializedProperty serializedProperty)
+        public virtual SerializationInspectorBase Init(SerializedProperty serializedProperty, bool isLock = true, bool isHeader = true)
         {
             throw new System.NotImplementedException();
         }
 
-        public virtual SerializationInspectorBase Init(SerializedObject serializedObject)
+        public virtual SerializationInspectorBase Init(SerializedObject serializedObject, bool isLock = true, bool isHeader = true)
         {
             throw new System.NotImplementedException();
         }

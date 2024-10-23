@@ -1,6 +1,6 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2023 DaveAnt. All rights reserved.
+Copyright © 2021-2024 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
@@ -40,9 +40,36 @@ namespace ScriptableProcessor
             for (int index=0; index < s_AssemblyNames.Length; ++index)
             {
                 var assemblyNames = s_AssemblyNames[index];
+                int noAssemblyIndex = -1, noAssemblyCount = 0;
                 s_Assemblies[index] = new Assembly[assemblyNames.Length];
                 for(int number=0; number < assemblyNames.Length; ++number)
-                    s_Assemblies[index][number] = Assembly.Load(assemblyNames[number]);
+                {
+                    try
+                    {
+                        if(noAssemblyIndex != -1)
+                        {
+                            string noAssemblyName = s_AssemblyNames[index][noAssemblyIndex];
+                            s_Assemblies[index][noAssemblyIndex] = Assembly.Load(assemblyNames[number]);
+                            s_AssemblyNames[index][noAssemblyIndex] = s_AssemblyNames[index][number];
+                            s_AssemblyNames[index][number] = noAssemblyName;
+                            noAssemblyIndex++;
+                        }
+                        else
+                        {
+                            s_Assemblies[index][number] = Assembly.Load(assemblyNames[number]);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning(ex.Message);
+                        noAssemblyIndex = noAssemblyIndex == -1 ? number : noAssemblyIndex;
+                        noAssemblyCount++;
+                    }
+                }
+                if (noAssemblyCount != 0)
+                {
+                    Array.Resize(ref s_Assemblies[index], s_Assemblies[index].Length - noAssemblyCount);
+                }
             }
         }
 

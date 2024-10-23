@@ -1,10 +1,11 @@
 ﻿/*
 ScriptableProcessor
-Copyright © 2021-2023 DaveAnt. All rights reserved.
+Copyright © 2021-2024 DaveAnt. All rights reserved.
 Blog: https://daveant.gitee.io/
 */
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -13,6 +14,23 @@ namespace ScriptableProcessor.Editor
 {
     public sealed class ScriptableProcessorInspector : SerializationInspectorBase
     {
+        internal class ScriptableInstance
+        {
+            public readonly string scriptableData;
+            public readonly List<UnityEngine.Object> scriptableReferences;
+
+            public ScriptableInstance(SerializedProperty scriptableDataProp, SerializedProperty scriptableReferencesProp)
+            {
+                scriptableData = scriptableDataProp.stringValue;
+                scriptableReferences = new List<UnityEngine.Object>();
+                for (int i = 0; i < scriptableReferencesProp.arraySize; ++i)
+                {
+                    UnityEngine.Object scriptableReference = scriptableReferencesProp.GetArrayElementAtIndex(i).objectReferenceValue;
+                    scriptableReferences.Add(scriptableReference);
+                }
+            }
+        }
+        private readonly float identWidth = 15;
         private readonly int[] m_ScriptableElementHeight = { 25, 45, 70 };
 
         private readonly string m_Name;
@@ -27,6 +45,11 @@ namespace ScriptableProcessor.Editor
         private readonly string m_ScriptableTypeIndexDesc = "m_ScriptableTypeIndex";
         private readonly string m_OptionSerializeDatasDesc = "m_OptionSerializeDatas";
 
+        private readonly string m_ScriptableDataDesc = "m_ScriptableData";
+        private readonly string m_ScriptableReferencesDesc = "m_ScriptableReferences";
+
+        private int m_Changed;
+        private int m_ComponentNum;
         private Component m_TargetComponent;
         private SerializedProperty m_ScriptableInfosProp;
         private SerializedProperty m_OptionTypeNamesProp;
@@ -34,13 +57,12 @@ namespace ScriptableProcessor.Editor
         private ReorderableList m_ScriptableInfosReorderableList;
 
         private ScriptableType m_OptionScriptableType;
-        private ISerializedContentBase m_SerializedContent;
-        private string m_CurrentScriptableTypeName;
         private string[] m_ScriptableTypeNames;
         private int m_OptionBeginIndex;
         private float m_PropertyHeight;
         private Type m_ScriptableType;
-
+        private bool m_Header;
+        private bool m_Lock;
         public bool IsCustomEnable
         {
             get
@@ -77,7 +99,23 @@ namespace ScriptableProcessor.Editor
                 SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(selectedIndex);
                 SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
                 SerializedProperty optionSerializeDatasProp = scriptableInfoProp.FindPropertyRelative(m_OptionSerializeDatasDesc);
-                return optionSerializeDatasProp.GetArrayElementAtIndex(scriptableTypeIndexProp.intValue).stringValue;
+
+                SerializedProperty optionDataProp = optionSerializeDatasProp.GetArrayElementAtIndex(scriptableTypeIndexProp.intValue);
+                SerializedProperty scriptableDataProp = optionDataProp.FindPropertyRelative(m_ScriptableDataDesc);
+                SerializedProperty scriptableReferencesProp = optionDataProp.FindPropertyRelative(m_ScriptableReferencesDesc);
+
+                if(!string.IsNullOrEmpty(scriptableDataProp.stringValue))
+                {
+                    string[] scriptableInstanceIds = new string[scriptableReferencesProp.arraySize];
+                    for (int i = 0; i < scriptableReferencesProp.arraySize; ++i)
+                    {
+                        UnityEngine.Object scriptableReference = scriptableReferencesProp.GetArrayElementAtIndex(i).objectReferenceValue;
+                        scriptableInstanceIds[i] = string.Format("{{\"instanceID\":{0}}}", scriptableReference?.GetInstanceID() ?? 0);
+                    }
+
+                    return string.Format(scriptableDataProp.stringValue, scriptableInstanceIds);
+                }
+                return null;
             }
             set
             {
@@ -86,22 +124,26 @@ namespace ScriptableProcessor.Editor
                 SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(selectedIndex);
                 SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
                 SerializedProperty optionSerializeDatasProp = scriptableInfoProp.FindPropertyRelative(m_OptionSerializeDatasDesc);
-                optionSerializeDatasProp.GetArrayElementAtIndex(scriptableTypeIndexProp.intValue).stringValue = value;
-            }
-        }
 
-        public ISerializedContentBase this[string scriptableTypeName]
-        {
-            get
-            {
-                if (scriptableTypeName != m_CurrentScriptableTypeName) 
-                {
-                    m_SerializedContent = ScriptableProcessorManager.Acquire(scriptableTypeName);
-                    m_SerializedContent.FormJson(m_SerializedContent.PropertyTarget, OptionScriptableData);
-                    m_CurrentScriptableTypeName = scriptableTypeName;
-                }
+                SerializedProperty optionDataProp = optionSerializeDatasProp.GetArrayElementAtIndex(scriptableTypeIndexProp.intValue);
+                SerializedProperty scriptableDataProp = optionDataProp.FindPropertyRelative(m_ScriptableDataDesc);
+                SerializedProperty scriptableReferencesProp = optionDataProp.FindPropertyRelative(m_ScriptableReferencesDesc);
+                scriptableReferencesProp.ClearArray();
 
-                return m_SerializedContent;
+                int index = 0;
+                string pattern = "{\"instanceID\":(-?[0-9]+)}|[{}]";
+                value = Regex.Replace(value, pattern, (match) => {
+                    if (match.Value == "{" || match.Value == "}")
+                        return match.Value + match.Value;
+
+                    string instanceStr = match.Value.Substring(14, match.Value.Length - 15);
+                    int instanceID = int.Parse(instanceStr);
+                    scriptableReferencesProp.InsertArrayElementAtIndex(index);
+                    scriptableReferencesProp.GetArrayElementAtIndex(index).objectReferenceValue = EditorUtility.InstanceIDToObject(instanceID);
+                    return "{" + (index++) + "}";
+                });
+
+                scriptableDataProp.stringValue = value;
             }
         }
 
@@ -127,18 +169,20 @@ namespace ScriptableProcessor.Editor
         {
             m_Name = name;
             m_ScriptableType = scriptableType;
-            m_HeaderName = "[ScriptableProcessor]-" + m_Name;
             m_OptionBeginIndex = IsCustomEnable ? -1 : 0;
+            m_HeaderName = string.Format("[SP-{0}]", ScriptableProcessorUtilities.FieldNameForDisplay(name));
         }
 
-        public override SerializationInspectorBase Init(SerializedObject obj)
+        public override SerializationInspectorBase Init(SerializedProperty prop,bool isLock = true,bool isHeader = true)
         {
-            m_TargetComponent = (Component)obj.targetObject;
-            m_ScriptableProcessorProp = obj.FindProperty(m_Name);
+            m_Lock = isLock;
+            m_Header = isHeader;
+            m_ScriptableProcessorProp = prop;
+            m_TargetComponent = prop.serializedObject.Component();
             m_OptionTypeNamesProp = m_ScriptableProcessorProp.FindPropertyRelative(m_OptionTypeNamesDesc);
             m_ScriptableInfosProp = m_ScriptableProcessorProp.FindPropertyRelative(m_ScriptableInfosDesc);
-            m_ScriptableInfosReorderableList = new ReorderableList(obj, m_ScriptableInfosProp, true, false, true, true);
-            m_ScriptableProcessorProp.FindPropertyRelative(m_TargetDesc).objectReferenceValue = m_TargetComponent.gameObject;
+            m_ScriptableInfosReorderableList = new ReorderableList(prop.serializedObject, m_ScriptableInfosProp, true, false, !isLock, !isLock);
+            m_ScriptableProcessorProp.FindPropertyRelative(m_TargetDesc).objectReferenceValue = m_TargetComponent;
 
             m_ScriptableInfosReorderableList.drawElementCallback = (Rect position, int index, bool selected, bool focused) =>
             {
@@ -146,7 +190,7 @@ namespace ScriptableProcessor.Editor
                 SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(index);
                 using (new EditorGUI.PropertyScope(position, null, scriptableInfoProp))
                 {
-                    string displayName = ScriptableProcessorUtility.FieldNameForDisplay(m_Name);
+                    string displayName = ScriptableProcessorUtilities.FieldNameForDisplay(m_Name);
                     SerializedProperty customScriptablesProp = scriptableInfoProp.FindPropertyRelative(m_CustomScriptableDesc);
                     SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
 
@@ -167,7 +211,6 @@ namespace ScriptableProcessor.Editor
                         }
                     }
                 }
-                
             };
 
             m_ScriptableInfosReorderableList.elementHeightCallback = (int index) =>
@@ -186,20 +229,32 @@ namespace ScriptableProcessor.Editor
             {
                 ReorderableList.defaultBehaviours.DoAddButton(list);
                 OnAddReorderableList(m_ScriptableInfosProp.arraySize - 1);
-                m_CurrentScriptableTypeName = string.Empty;
             };
 
             m_ScriptableInfosReorderableList.onRemoveCallback = (ReorderableList list) =>
             {
                 OnRemoveReorderableList(SelectedIndex);
                 ReorderableList.defaultBehaviours.DoRemoveButton(list);
-                m_CurrentScriptableTypeName = string.Empty;
             };
 
-            m_ScriptableInfosReorderableList.onSelectCallback = (ReorderableList list) =>
+            if (isLock)
             {
-                m_CurrentScriptableTypeName = string.Empty;
-            };
+                int scriptableCount = m_ScriptableInfosProp.arraySize;
+                if (scriptableCount >= 2)
+                {
+                    for (int i = scriptableCount - 1; i > 0; --i)
+                    {
+                        OnRemoveReorderableList(i);
+                        m_ScriptableInfosProp.DeleteArrayElementAtIndex(i);
+                    }
+                }
+                else if (scriptableCount == 0)
+                {
+                    m_ScriptableInfosProp.InsertArrayElementAtIndex(0);
+                    OnAddReorderableList(0);
+                }
+            }
+
             Refresh();
 
             return this;
@@ -207,166 +262,202 @@ namespace ScriptableProcessor.Editor
 
         public override void Draw()
         {
-            try
+            m_ScriptableProcessorProp.isExpanded = m_Header ? EditorGUILayout.Foldout(m_ScriptableProcessorProp.isExpanded, m_HeaderName) : true;
+            if (m_ScriptableProcessorProp.isExpanded)
             {
-                m_ScriptableProcessorProp.isExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(m_ScriptableProcessorProp.isExpanded, m_HeaderName);
-                if (m_ScriptableProcessorProp.isExpanded)
-                {
-                    if (OptionScriptableType != ScriptableType.NoSerialize && GUILayout.Button("Clear Trashes"))
-                        OnClearTrashesClick();
-                    m_ScriptableInfosReorderableList.DoLayoutList();
-                }
-                EditorGUILayout.EndFoldoutHeaderGroup();
+                if (OptionScriptableType != ScriptableType.NoSerialize && !m_Lock && GUILayout.Button("Clear NoReferences"))
+                    OnNoReferencesClick();
+                m_ScriptableInfosReorderableList.DoLayoutList();
 
-                if (m_ScriptableProcessorProp.isExpanded && OptionScriptableType != ScriptableType.NoSerialize && SelectedIndex != -1)
+                try
                 {
-                    SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(SelectedIndex);
-                    SerializedProperty customScriptableProp = scriptableInfoProp.FindPropertyRelative(m_CustomScriptableDesc);
-                    SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
-
-                    if (scriptableTypeIndexProp.intValue >= 0)
+                    if (OptionScriptableType != ScriptableType.NoSerialize && SelectedIndex != -1)
                     {
-                        string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
-                        ISerializedContentBase serializedContentBase = this[currentScriptableTypeName];
-                        SerializedProperty prop = serializedContentBase.PropertyTarget;
+                        SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(SelectedIndex);
+                        SerializedProperty customScriptableProp = scriptableInfoProp.FindPropertyRelative(m_CustomScriptableDesc);
+                        SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
 
-                        EditorGUI.BeginChangeCheck();
-                        ScriptableProcessorUtility.DoLayoutDrawDefaultInspector(prop);
-                        if (EditorGUI.EndChangeCheck())
+                        if (scriptableTypeIndexProp.intValue >= 0)
                         {
-                            OptionScriptableData = serializedContentBase.ToJson(prop);
+                            string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
+                            SerializedContent serializedContent = SerializedContent.Acquire(currentScriptableTypeName, m_ScriptableProcessorProp.propertyPath, OptionScriptableData, m_TargetComponent);
+
+                            EditorGUI.BeginChangeCheck();
+                            ScriptableProcessorUtilities.DoLayoutDrawDefaultInspector(serializedContent.targetProp);
+                            if (EditorGUI.EndChangeCheck())
+                            {
+                                OptionScriptableData = serializedContent.ToJson();
+                            }
+                        }
+                        else if (customScriptableProp.objectReferenceValue != null)
+                        {
+                            SerializedObject serializedObject = SerializedContent.Acquire(customScriptableProp.objectReferenceValue, m_TargetComponent);
+                            ScriptableProcessorUtilities.DoLayoutDrawDefaultInspector(serializedObject);
+                        }
+                        else
+                        {
+                            EditorGUILayout.HelpBox("customscriptable is null.", MessageType.Warning);
                         }
                     }
-                    else if (customScriptableProp.objectReferenceValue != null)
-                    {
-                        SerializedObject serializedObject = ScriptableProcessorManager.Acquire(customScriptableProp.objectReferenceValue);
-                        ScriptableProcessorUtility.DoLayoutDrawDefaultInspector(serializedObject);
-                    }
-                    else
-                    {
-                        EditorGUILayout.HelpBox("customscriptable is null.", MessageType.Warning);
-                    }
                 }
-            }
-            catch
-            {
-                ScriptableProcessorManager.Dispose(null);
+                catch(Exception e)
+                {
+                    SerializedContent.Release(this);
+                    Debug.LogException(e);
+                }
             }
         }
 
-        public override float Draw(Rect position)
+        public override float Draw(Rect rect)
         {
-            position.height = EditorGUIUtility.singleLineHeight;
-            m_PropertyHeight = (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing);
-            try
+            rect.xMin -= identWidth;
+            Rect buttonPos, lstPos = Rect.zero;
+            rect.height = m_Header ? EditorGUIUtility.singleLineHeight : 0;
+            m_PropertyHeight = rect.height + EditorGUIUtility.standardVerticalSpacing;
+            m_ScriptableProcessorProp.isExpanded = m_Header ? EditorGUI.Foldout(rect, m_ScriptableProcessorProp.isExpanded, m_HeaderName) : true;
+            float lstHeight = m_Lock ? m_ScriptableInfosReorderableList.GetHeight() - m_PropertyHeight : m_ScriptableInfosReorderableList.GetHeight();
+            rect = EditorGUI.IndentedRect(rect);
+
+            if (m_ScriptableProcessorProp.isExpanded)
             {
-                m_ScriptableProcessorProp.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(position, m_ScriptableProcessorProp.isExpanded, m_HeaderName);
-                Rect buttonPos, lstPos = Rect.zero;
-                if (m_ScriptableProcessorProp.isExpanded)
+                if (OptionScriptableType != ScriptableType.NoSerialize && !m_Lock)
                 {
-                    if (OptionScriptableType != ScriptableType.NoSerialize)
-                    {
-                        buttonPos = new Rect(position) { y = position.y + position.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight };
-                        lstPos = new Rect(buttonPos) { y = buttonPos.y + buttonPos.height + EditorGUIUtility.standardVerticalSpacing, height = m_ScriptableInfosReorderableList.GetHeight() };
-                        m_PropertyHeight += (buttonPos.height + EditorGUIUtility.standardVerticalSpacing);
+                    buttonPos = new Rect(rect) { y = rect.y + rect.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight };
+                    lstPos = new Rect(buttonPos) { y = buttonPos.y + buttonPos.height + EditorGUIUtility.standardVerticalSpacing, height = lstHeight };
+                    m_PropertyHeight += (buttonPos.height + EditorGUIUtility.standardVerticalSpacing);
 
-                        if (GUI.Button(buttonPos, "Clear Trashes"))
-                            OnClearTrashesClick();
-                    }
-                    else
-                    {
-                        lstPos = new Rect(position) { y = position.y + position.height + EditorGUIUtility.standardVerticalSpacing, height = m_ScriptableInfosReorderableList.GetHeight() };
-                    }
-
-                    m_PropertyHeight += (lstPos.height + EditorGUIUtility.standardVerticalSpacing);
-                    m_ScriptableInfosReorderableList.DoList(lstPos);
+                    if (GUI.Button(buttonPos, "Clear NoReferences"))
+                        OnNoReferencesClick();
                 }
-                EditorGUI.EndFoldoutHeaderGroup();
-
-                if (m_ScriptableProcessorProp.isExpanded && OptionScriptableType != ScriptableType.NoSerialize && SelectedIndex != -1)
+                else
                 {
-                    Rect infoPos = new Rect(lstPos) { y = lstPos.y + lstPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight * 2 };
-                    SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(SelectedIndex);
-                    SerializedProperty customScriptableProp = scriptableInfoProp.FindPropertyRelative(m_CustomScriptableDesc);
-                    SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
+                    lstPos = new Rect(rect) { y = rect.y + rect.height + EditorGUIUtility.standardVerticalSpacing, height = lstHeight };
+                }
 
-                    if (scriptableTypeIndexProp.intValue >= 0)
+                m_PropertyHeight += (lstPos.height + EditorGUIUtility.standardVerticalSpacing);
+                m_ScriptableInfosReorderableList.DoList(lstPos);
+
+                try
+                {
+                    if (OptionScriptableType != ScriptableType.NoSerialize && SelectedIndex != -1)
                     {
-                        string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
-                        ISerializedContentBase serializedContentBase = this[currentScriptableTypeName];
-                        SerializedProperty prop = serializedContentBase.PropertyTarget;
+                        Rect infoPos = new Rect(lstPos) { y = lstPos.y + lstPos.height + EditorGUIUtility.standardVerticalSpacing, height = EditorGUIUtility.singleLineHeight * 2 };
+                        SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(SelectedIndex);
+                        SerializedProperty customScriptableProp = scriptableInfoProp.FindPropertyRelative(m_CustomScriptableDesc);
+                        SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
 
-                        EditorGUI.BeginChangeCheck();
-                        m_PropertyHeight += ScriptableProcessorUtility.DoRectDrawDefaultInspector(lstPos, prop);
-                        if (EditorGUI.EndChangeCheck())
+                        if (scriptableTypeIndexProp.intValue >= 0)
                         {
-                            OptionScriptableData = serializedContentBase.ToJson(prop);
+                            string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
+                            SerializedContent serializedContent = SerializedContent.Acquire(currentScriptableTypeName, m_ScriptableProcessorProp.propertyPath, OptionScriptableData, m_TargetComponent);
+
+                            EditorGUI.BeginChangeCheck(); 
+                            m_PropertyHeight += ScriptableProcessorUtilities.DoRectDrawDefaultInspector(lstPos, serializedContent.targetProp);
+                            if (EditorGUI.EndChangeCheck())
+                            {
+                                OptionScriptableData = serializedContent.ToJson();
+                            }
+                        }
+                        else if (customScriptableProp.objectReferenceValue != null)
+                        {
+                            SerializedObject serializedObject = SerializedContent.Acquire(customScriptableProp.objectReferenceValue, m_TargetComponent);
+                            m_PropertyHeight += ScriptableProcessorUtilities.DoRectDrawDefaultInspector(lstPos, serializedObject);
+                        }
+                        else
+                        {
+                            EditorGUI.HelpBox(infoPos, "customscriptable is null.", MessageType.Warning);
+                            m_PropertyHeight += (infoPos.height + EditorGUIUtility.standardVerticalSpacing);
                         }
                     }
-                    else if (customScriptableProp.objectReferenceValue != null)
-                    {
-                        SerializedObject serializedObject = ScriptableProcessorManager.Acquire(customScriptableProp.objectReferenceValue);
-                        m_PropertyHeight += ScriptableProcessorUtility.DoRectDrawDefaultInspector(lstPos, serializedObject);
-                    }
-                    else
-                    {
-                        EditorGUI.HelpBox(infoPos, "customscriptable is null.", MessageType.Warning);
-                        m_PropertyHeight += (infoPos.height + EditorGUIUtility.standardVerticalSpacing);
-                    }
+                }
+                catch(Exception e)
+                {
+                    SerializedContent.Release(this);
+                    Debug.LogException(e);
                 }
             }
-            catch
-            {
-                ScriptableProcessorManager.Dispose(null);
-            }
-
             return m_PropertyHeight;
+        }
+
+        public void OnGUIChanged()
+        {
+            if(m_TargetComponent != null)
+            {
+                int num = m_TargetComponent.GetComponents<Component>().Length;
+                if (m_ComponentNum != num)
+                {
+                    m_ComponentNum = num;
+                    m_Changed = 30;
+                }
+                if (m_Changed > 0)
+                {
+                    GUI.changed = true;
+                    m_Changed--;
+                }
+            }
         }
 
         public override void Refresh()
         {
             bool isCustomEnable = IsCustomEnable;
-            int otionTypeNamesArraySize = m_OptionTypeNamesProp.arraySize;
             List<string> scriptableTypeNameLst = new List<string>(TypeExt.GetTypeFullNames(m_ScriptableType));
 
-            for (int i = 0; i < m_ScriptableInfosProp.arraySize; ++i)
+            if(CheckOptionTypeNames(scriptableTypeNameLst))
             {
-                SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(i);
-                SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
-                SerializedProperty optionSerializeDatasProp = scriptableInfoProp.FindPropertyRelative(m_OptionSerializeDatasDesc);
-                
-                int optionDatasArraySize = optionSerializeDatasProp.arraySize;
-                string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
-                Dictionary<string, string> optionScriptableDict = new Dictionary<string, string>();
-                scriptableTypeIndexProp.intValue = m_OptionBeginIndex;
-
-                for (int j = 0; j < optionDatasArraySize; ++j)
+                for (int i = 0; i < m_ScriptableInfosProp.arraySize; ++i)
                 {
-                    string scriptableTypeName = m_OptionTypeNamesProp.GetArrayElementAtIndex(j).stringValue;
-                    string optionSerializeData = optionSerializeDatasProp.GetArrayElementAtIndex(0).stringValue;
-                    optionScriptableDict.Add(scriptableTypeName, optionSerializeData);
-                    optionSerializeDatasProp.DeleteArrayElementAtIndex(0);
+                    SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(i);
+                    SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
+                    SerializedProperty optionSerializeDatasProp = scriptableInfoProp.FindPropertyRelative(m_OptionSerializeDatasDesc);
+
+                    int optionDatasArraySize = optionSerializeDatasProp.arraySize;
+                    string currentScriptableTypeName = GetOptionTypeNameByIndex(scriptableTypeIndexProp.intValue);
+                    Dictionary<string, ScriptableInstance> optionScriptableDict = new Dictionary<string, ScriptableInstance>();
+                    scriptableTypeIndexProp.intValue = m_OptionBeginIndex;
+
+                    for (int j = 0; j < optionDatasArraySize; ++j)
+                    {
+                        string scriptableTypeName = m_OptionTypeNamesProp.GetArrayElementAtIndex(j).stringValue;
+                        SerializedProperty optionDataProp = optionSerializeDatasProp.GetArrayElementAtIndex(j);
+                        SerializedProperty scriptableDataProp = optionDataProp.FindPropertyRelative(m_ScriptableDataDesc);
+                        SerializedProperty scriptableReferencesProp = optionDataProp.FindPropertyRelative(m_ScriptableReferencesDesc);
+                        ScriptableInstance scriptableInstance = new ScriptableInstance(scriptableDataProp, scriptableReferencesProp);
+                        optionScriptableDict.Add(scriptableTypeName, scriptableInstance);
+                    }
+
+                    optionSerializeDatasProp.ClearArray();
+                    for (int j = 0; j < scriptableTypeNameLst.Count; ++j)
+                    {
+                        ScriptableInstance scriptableInstance;
+                        optionSerializeDatasProp.InsertArrayElementAtIndex(j);
+                        if (optionScriptableDict.TryGetValue(scriptableTypeNameLst[j], out scriptableInstance))
+                        {
+                            SerializedProperty optionDataProp = optionSerializeDatasProp.GetArrayElementAtIndex(j);
+                            SerializedProperty scriptableDataProp = optionDataProp.FindPropertyRelative(m_ScriptableDataDesc);
+                            SerializedProperty scriptableReferencesProp = optionDataProp.FindPropertyRelative(m_ScriptableReferencesDesc);
+
+                            int index = 0;
+                            scriptableDataProp.stringValue = scriptableInstance.scriptableData;
+                            foreach (UnityEngine.Object scriptableReference in scriptableInstance.scriptableReferences)
+                            {
+                                scriptableReferencesProp.InsertArrayElementAtIndex(index);
+                                scriptableReferencesProp.GetArrayElementAtIndex(index).objectReferenceValue = scriptableReference;
+                                index++;
+                            }
+                        }
+
+                        if (scriptableTypeNameLst[j] == currentScriptableTypeName)
+                            scriptableTypeIndexProp.intValue = j;
+                    }
                 }
 
-                for (int j = 0; j < scriptableTypeNameLst.Count; ++j)
+                m_OptionTypeNamesProp.ClearArray();
+                foreach (string scriptableTypeName in scriptableTypeNameLst)
                 {
-                    string optionSerializeData;
-                    optionSerializeDatasProp.InsertArrayElementAtIndex(j);
-                    optionScriptableDict.TryGetValue(scriptableTypeNameLst[j], out optionSerializeData);
-                    optionSerializeDatasProp.GetArrayElementAtIndex(j).stringValue = optionSerializeData;
-
-                    if (scriptableTypeNameLst[j] == currentScriptableTypeName)
-                        scriptableTypeIndexProp.intValue = j;
+                    int index = m_OptionTypeNamesProp.arraySize;
+                    m_OptionTypeNamesProp.InsertArrayElementAtIndex(index);
+                    m_OptionTypeNamesProp.GetArrayElementAtIndex(index).stringValue = scriptableTypeName;
                 }
-            }
-
-            for (int i = 0; i < otionTypeNamesArraySize; ++i)
-                m_OptionTypeNamesProp.DeleteArrayElementAtIndex(0);
-            foreach (string scriptableTypeName in scriptableTypeNameLst)
-            {
-                int index = m_OptionTypeNamesProp.arraySize;
-                m_OptionTypeNamesProp.InsertArrayElementAtIndex(index);
-                m_OptionTypeNamesProp.GetArrayElementAtIndex(index).stringValue = scriptableTypeName;
             }
 
             if (isCustomEnable) scriptableTypeNameLst.Insert(0, m_CustomOptionName);
@@ -375,7 +466,20 @@ namespace ScriptableProcessor.Editor
 
         public override void Dispose()
         {
-            ScriptableProcessorManager.Dispose(null);
+            SerializedContent.Release(this);
+        }
+
+        private bool CheckOptionTypeNames(List<string> scriptableTypeNameLst)
+        {
+            if (scriptableTypeNameLst.Count != m_OptionTypeNamesProp.arraySize)
+                return true;
+            for (int i = 0; i < scriptableTypeNameLst.Count; ++i)
+            {
+                string scriptableTypeName = m_OptionTypeNamesProp.GetArrayElementAtIndex(i).stringValue;
+                if (scriptableTypeNameLst[i] != scriptableTypeName)
+                    return true;
+            }
+            return false;
         }
 
         private string GetOptionTypeNameByIndex(int index)
@@ -392,12 +496,16 @@ namespace ScriptableProcessor.Editor
             SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(index);
             SerializedProperty scriptableTypeIndexProp = scriptableInfoProp.FindPropertyRelative(m_ScriptableTypeIndexDesc);
             SerializedProperty optionSerializeDatasProp = scriptableInfoProp.FindPropertyRelative(m_OptionSerializeDatasDesc);
-            int optionDatasArraySize = optionSerializeDatasProp.arraySize;
+
             for (int i = 0; i < m_OptionTypeNamesProp.arraySize; ++i)
             {
-                if(i >= optionDatasArraySize)
+                if(optionSerializeDatasProp.arraySize < m_OptionTypeNamesProp.arraySize)
                     optionSerializeDatasProp.InsertArrayElementAtIndex(i);
-                optionSerializeDatasProp.GetArrayElementAtIndex(i).stringValue = string.Empty;
+                SerializedProperty optionDataProp = optionSerializeDatasProp.GetArrayElementAtIndex(i);
+                SerializedProperty scriptableDataProp = optionDataProp.FindPropertyRelative(m_ScriptableDataDesc);
+                SerializedProperty scriptableReferencesProp = optionDataProp.FindPropertyRelative(m_ScriptableReferencesDesc);
+                scriptableDataProp.stringValue = string.Empty;
+                scriptableReferencesProp.ClearArray();
             }
 
             scriptableTypeIndexProp.intValue = m_OptionBeginIndex;
@@ -407,12 +515,10 @@ namespace ScriptableProcessor.Editor
         {
             SerializedProperty scriptableInfoProp = m_ScriptableInfosProp.GetArrayElementAtIndex(index);
             SerializedProperty optionSerializeDatasProp = scriptableInfoProp.FindPropertyRelative(m_OptionSerializeDatasDesc);
-            int optionDatasArraySize = optionSerializeDatasProp.arraySize;
-            for (int i = 0; i < optionDatasArraySize; ++i)
-                optionSerializeDatasProp.DeleteArrayElementAtIndex(0);
+            optionSerializeDatasProp.ClearArray();
         }
 
-        private void OnClearTrashesClick()
+        private void OnNoReferencesClick()
         {
             for (int i = 0; i < m_ScriptableInfosProp.arraySize; ++i)
             {
@@ -424,8 +530,11 @@ namespace ScriptableProcessor.Editor
                 {
                     if (scriptableTypeIndexProp.intValue != j)
                     {
-                        SerializedProperty optionSerializeDataProp = optionSerializeDatasProp.GetArrayElementAtIndex(j);
-                        optionSerializeDataProp.stringValue = null;
+                        SerializedProperty optionDataProp = optionSerializeDatasProp.GetArrayElementAtIndex(j);
+                        SerializedProperty scriptableDataProp = optionDataProp.FindPropertyRelative(m_ScriptableDataDesc);
+                        SerializedProperty scriptableReferencesProp = optionDataProp.FindPropertyRelative(m_ScriptableReferencesDesc);
+                        scriptableDataProp.stringValue = string.Empty;
+                        scriptableReferencesProp.ClearArray();
                     }
                 }
             }
