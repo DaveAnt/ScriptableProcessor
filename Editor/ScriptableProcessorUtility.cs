@@ -21,15 +21,6 @@ namespace ScriptableProcessor.Editor
         }
 
         #region ScriptableProcessorUtility
-
-        public static Component GetOrAddComponent(this GameObject gameObject,System.Type scriptabType)
-        {
-            Component result;
-            if (!gameObject.TryGetComponent(scriptabType, out result))
-                result = gameObject.AddComponent(scriptabType);
-            return result;
-        }
-
         public static string FieldNameForDisplay(string fieldName)
         {
             if (string.IsNullOrEmpty(fieldName))
